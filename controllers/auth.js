@@ -42,3 +42,21 @@ export const login = async (req, res) => {
 		res.status(500).json({ error: error.message });
 	}
 };
+
+/* LOGGING OUT */
+export const logout = async (req, res) => {
+	try {
+		//
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+};
+
+/* FORGOT PASSWORD */
+export const forgotPassword = async (req, res) => {
+	try {
+		//
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+};
