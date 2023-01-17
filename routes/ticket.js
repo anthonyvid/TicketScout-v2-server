@@ -1,6 +1,6 @@
 import express from "express";
-import { getTickets } from "../controllers/ticket";
-import { verifyToken } from "../middleware/auth";
+import { getTickets } from "../controllers/ticket.js";
+import { verifyToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
