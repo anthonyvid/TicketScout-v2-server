@@ -8,6 +8,9 @@ import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
 import authRoutes from "./routes/auth.js";
+import organizationRoutes from "./routes/organization.js";
+import ticketRoutes from "./routes/ticket.js";
+import customerRoutes from "./routes/customer.js";
 
 /* CONFIGURATIONS */
 const __filename = fileURLToPath(import.meta.url);
@@ -23,10 +26,11 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
 app.use("/assets", express.static(path.join(__dirname, "public/assets"))); // for prod can use s3
 
-// /* ROUTES */
-app.use("/auth", authRoutes);
-// app.use("/users", userRoutes);
-// app.use("/posts", postRoutes);
+/* ROUTES */
+app.use("/account", authRoutes);
+app.use("/:organization", organizationRoutes);
+app.use("/:organization", ticketRoutes);
+app.use("/:organization", customerRoutes);
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;
@@ -40,3 +44,9 @@ mongoose
 		app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
 	})
 	.catch((error) => console.log(`${error} did not connect`));
+
+
+    /**
+     * start UI for login, logout, register
+     * - test routes out
+     */
