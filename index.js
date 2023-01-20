@@ -27,10 +27,10 @@ app.use(cors());
 app.use("/assets", express.static(path.join(__dirname, "public/assets"))); // for prod can use s3
 
 /* ROUTES */
-app.use("/account", authRoutes);
-app.use("/:organization", organizationRoutes);
-app.use("/:organization", ticketRoutes);
-app.use("/:organization", customerRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/:organization", organizationRoutes);
+app.use("/api/:organization", ticketRoutes);
+app.use("/api/:organization", customerRoutes);
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;
@@ -45,8 +45,7 @@ mongoose
 	})
 	.catch((error) => console.log(`${error} did not connect`));
 
-
-    /**
-     * start UI for login, logout, register
-     * - test routes out
-     */
+/**
+ * start UI for login, logout, register
+ * - test routes out
+ */
