@@ -37,16 +37,23 @@ export const login = async (req, res) => {
 		const isMatch = await bcrypt.compare(password, user.password);
 
 		if (!isMatch)
-			return res
-				.status(statusCodes.BAD_REQUEST)
-				.json({
-					msg: "Invalid email or password.",
-					key: "invalid_credentials",
-				});
+			return res.status(statusCodes.BAD_REQUEST).json({
+				msg: "Invalid email or password.",
+				key: "invalid_credentials",
+			});
 
 		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 		delete user.password;
 		res.status(statusCodes.OK).json({ token, user });
+	} catch (error) {
+		res.status(statusCodes.INTERNAL_ERROR).json({ error: error.message });
+	}
+};
+
+export const verifySignUpCode = async (req, res) => {
+	try {
+		// loop through sign up codes in db, check if the code exists in there, if it does then return code, storename, and users email
+		res.status(statusCodes.OK).json({ x: req.body });
 	} catch (error) {
 		res.status(statusCodes.INTERNAL_ERROR).json({ error: error.message });
 	}
