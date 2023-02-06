@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { statusCodes } from "../constants/statusCodes.constants.js";
 import Stripe from "stripe";
-import { planType } from "../constants/user.constants.js";
+import { planTypes } from "../constants/organization.constants.js";
 
 /* REGISTER USER */
 export const register = async (req, res) => {
@@ -83,9 +83,9 @@ export const createCheckoutSession = async (req, res) => {
 	const { subscriptionType } = req.body;
 	let priceId = "";
 
-	if (subscriptionType === planType.STANDARD) {
+	if (subscriptionType === planTypes.STANDARD) {
 		priceId = process.env.STANDARD_PAYMENT_ID;
-	} else if (subscriptionType === planType.PRO) {
+	} else if (subscriptionType === planTypes.PRO) {
 		priceId = process.env.PRO_PAYMENT_ID;
 	}
 
@@ -93,7 +93,9 @@ export const createCheckoutSession = async (req, res) => {
 	const session = await stripe.checkout.sessions.create({
 		line_items: [{ price: priceId, quantity: 1 }],
 		mode: "subscription",
-		success_url: `${req.protocol}://${req.get("host")}${req.originalUrl}/success`,
+		success_url: `${req.protocol}://${req.get("host")}${
+			req.originalUrl
+		}/success`,
 		cancel_url: `http://localhost:3000/cancel`,
 		customer_email: "customer@email.com",
 	});
