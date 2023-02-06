@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { subscription } from "../constants/organization.constants";
+import { subscription } from "../constants/store.constants";
 
-const OrganizationSchema = new mongoose.Schema(
+const StoreSchema = new mongoose.Schema(
 	{
 		// _id: {
 		// 	type: String,
@@ -47,6 +47,6 @@ const OrganizationSchema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
-const Organization = mongoose.model("Organization", OrganizationSchema);
+const Store = mongoose.model("Store", StoreSchema);
 
-export default Organization;
+export default Store;

@@ -16,3 +16,9 @@ export const accountStatus = Object.freeze({
 	ACTIVE: 1, // User account active
 	DEACTIVATED: 2, // User account deactivated
 });
+
+export const planType = Object.freeze({
+	BASIC: 0,
+	STANDARD: 1,
+	PRO: 2,
+});

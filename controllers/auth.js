@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { statusCodes } from "../constants/statusCodes.constants.js";
+import Stripe from "stripe";
+import { planType } from "../constants/user.constants.js";
 
 /* REGISTER USER */
 export const register = async (req, res) => {
@@ -75,4 +77,26 @@ export const forgotPassword = async (req, res) => {
 	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}
+};
+
+export const createCheckoutSession = async (req, res) => {
+	const { subscriptionType } = req.body;
+	let priceId = "";
+
+	if (subscriptionType === planType.STANDARD) {
+		priceId = process.env.STANDARD_PAYMENT_ID;
+	} else if (subscriptionType === planType.PRO) {
+		priceId = process.env.PRO_PAYMENT_ID;
+	}
+
+	const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+	const session = await stripe.checkout.sessions.create({
+		line_items: [{ price: priceId, quantity: 1 }],
+		mode: "subscription",
+		success_url: `${req.protocol}://${req.get("host")}${req.originalUrl}/success`,
+		cancel_url: `http://localhost:3000/cancel`,
+		customer_email: "customer@email.com",
+	});
+
+	res.send({ url: session.url });
 };
