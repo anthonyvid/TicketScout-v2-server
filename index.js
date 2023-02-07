@@ -28,7 +28,7 @@ app.use("/assets", express.static(path.join(__dirname, "public/assets"))); // fo
 
 /* ROUTES */
 app.use("/api/auth", authRoutes);
-app.use("/api", organizationRoutes);
+app.use("/api/organizations", organizationRoutes);
 app.use("/api/:store", ticketRoutes);
 app.use("/api/:store", customerRoutes);
 

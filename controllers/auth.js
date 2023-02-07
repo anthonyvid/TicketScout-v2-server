@@ -80,12 +80,12 @@ export const forgotPassword = async (req, res) => {
 };
 
 export const createCheckoutSession = async (req, res) => {
-	const { subscriptionType } = req.body;
+	const { planType } = req.body;
 	let priceId = "";
 
-	if (subscriptionType === planTypes.STANDARD) {
+	if (planType === planTypes.STANDARD) {
 		priceId = process.env.STANDARD_PAYMENT_ID;
-	} else if (subscriptionType === planTypes.PRO) {
+	} else if (planType === planTypes.PRO) {
 		priceId = process.env.PRO_PAYMENT_ID;
 	}
 
