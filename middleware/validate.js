@@ -1,45 +1,123 @@
 import validator from "validator";
+import { planTypes } from "../constants/organization.constants.js";
 import { statusCodes } from "../constants/statusCodes.constants.js";
+import {
+	isUniqueEmail,
+	isUniqueStoreName,
+	throwError,
+} from "../utils/helper.js";
+import { isPassword } from "../utils/helper.js";
+
+export const validateUser = async (req, res, next) => {
+	try {
+		let {
+			firstname,
+			lastname,
+			email,
+			phoneNumber,
+			password,
+			confirmPassword,
+		} = req.body;
+
+		phoneNumber = phoneNumber.replace("-", "");
+
+		// Validate First name
+		if (!/^[A-Za-z\s]+$/.test(firstname))
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"First name is invalid.",
+					"firstname"
+				)
+			);
+
+		// Validate Last name
+		if (!/^[A-Za-z\s]+$/.test(lastname))
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"Last name is invalid.",
+					"lastname"
+				)
+			);
+
+		// Validate Email
+		if (!validator.isEmail(email))
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"Email is invalid.",
+					"email"
+				)
+			);
+
+		// Validate unique email
+		if (!isUniqueEmail(email))
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"Email is already taken.",
+					"email"
+				)
+			);
+
+		// Validate Phone number
+		if (!validator.isMobilePhone(phoneNumber))
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"Phone number is invalid.",
+					"phoneNumber"
+				)
+			);
+
+		// // Validate password
+		// const { isValidPassword, passwordError } = isPassword(password);
+		// if (!isValidPassword)
+		// 	next(throwError(statusCodes.BAD_REQUEST, passwordError, "password"));
+
+		// // Validate confirm password
+		// if (confirmPassword === password)
+		// 	next(
+		// 		throwError(
+		// 			statusCodes.BAD_REQUEST,
+		// 			"Passwords do not match.",
+		// 			"confirmPassword"
+		// 		)
+		// 	);
+
+		next();
+	} catch (error) {
+		next(error);
+	}
+};
 
 export const validateStore = async (req, res, next) => {
-	let {
-		firstname,
-		lastname,
-		email,
-		phoneNumber,
-		password,
-		confirmPassword,
-		planType,
-		storeName,
-		storeUrl,
-	} = req.body;
+	try {
+		let { planType, storeName } = req.body;
 
-	// Vaidate First name
-	if (!/^[A-Za-z\s]+$/.test(firstname))
-		return next(
-			new Error(statusCodes.BAD_REQUEST, "First name is invalid.")
-		);
+		// Validate plan type
+		if (!Object.values(planTypes).includes(planType))
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"Invalid plan type, refresh and try again.",
+					"planType"
+				)
+			);
 
-	// Vaidate Last name
-	if (!/^[A-Za-z\s]+$/.test(lastname))
-		return next(
-			new Error(statusCodes.BAD_REQUEST, "Last name is invalid.")
-		);
+		// Validate store name is unique
+		if (!isUniqueStoreName(storeName))
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"Store name is already taken.",
+					"storeName"
+				)
+			);
 
-	// Vaidate Email
-	if (!validator.isEmail(email))
-		return next(
-			new Error(statusCodes.BAD_REQUEST, "Email is invalid.")
-		);
-
-	// Vaidate Phone number
-	if (!validator.isMobilePhone(phoneNumber))
-		return next(
-			new Error(
-				statusCodes.BAD_REQUEST,
-				"Phone number is invalid."
-			)
-		);
-
-	next();
+		next();
+	} catch (error) {
+		next(error);
+	}
 };

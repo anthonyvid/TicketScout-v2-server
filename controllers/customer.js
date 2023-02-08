@@ -1,1 +1,1 @@
-export const getCustomers = (req, res) => {};
+export const getCustomers = (req, res, next) => {};
