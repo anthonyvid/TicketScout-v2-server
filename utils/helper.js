@@ -62,7 +62,6 @@ export const isUniqueEmail = async (email) => {
 	try {
 		const users = db.collection("users");
 		const user = await users.findOne({ email });
-		console.log(user, email);
 		if (!user) return true;
 		return false;
 	} catch (error) {

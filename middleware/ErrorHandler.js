@@ -12,7 +12,7 @@ const ErrorHandler = (err, req, res, next) => {
 	if (errStatus === statusCodes.NOT_FOUND) {
 		// show error 404 page
 	}
-	console.log(res.sentry + "\n");
+
 	// Send back error to client
 	res.status(errStatus).json({
 		success: false,
