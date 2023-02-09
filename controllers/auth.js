@@ -4,7 +4,7 @@ import User from "../models/User.js";
 import { statusCodes } from "../constants/statusCodes.constants.js";
 import Stripe from "stripe";
 import { planTypes } from "../constants/organization.constants.js";
-import { throwError } from "../utils/helper.js";
+import { sendPasswordResetEmail, throwError } from "../utils/helper.js";
 import { db } from "../utils/db.js";
 
 /* REGISTER USER */
@@ -84,7 +84,22 @@ export const logout = async (req, res, next) => {
 /* FORGOT PASSWORD */
 export const forgotPassword = async (req, res, next) => {
 	try {
-		//
+		const { email } = req.body;
+		const users = db.collection("users");
+		const user = await users.findOne({ email });
+
+		if (user) {
+			const clientBaseUrl = new URL(req.header("Referer")).origin;
+			// send email
+			sendPasswordResetEmail(
+				user,
+				`${clientBaseUrl}/account/reset-password`,
+				next,
+				res
+			);
+    }
+
+		res.status(statusCodes.OK).json({ email });
 	} catch (error) {
 		next(error);
 	}
@@ -114,6 +129,7 @@ export const createCheckoutSession = async (req, res, next) => {
 			line_items: [{ price: priceId, quantity: 1 }],
 			mode: "subscription",
 			success_url: `${clientBaseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+			cancel_url: `${clientBaseUrl}/account/login?from=checkout&email=${email}`,
 			customer_email: email,
 		});
 
@@ -131,7 +147,7 @@ export const checkoutSuccess = async (req, res, next) => {
 		);
 		const email = session.customer_email;
 		const users = db.collection("users");
-		const user = await users.findOne({ email: "anthonyvidovic@gmail.com" });
+		const user = await users.findOne({ email });
 
 		if (!user) {
 			next(throwError(statusCodes.INTERNAL_ERROR));

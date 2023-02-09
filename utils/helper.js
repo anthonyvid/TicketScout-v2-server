@@ -1,4 +1,5 @@
 import { db } from "./db.js";
+import bcrypt from "bcrypt";
 
 export const isString = (str) => {
 	return Object.prototype.toString.call(str) === "[object String]";
@@ -74,4 +75,40 @@ export const throwError = (status, message, key = null) => {
 	error.statusCode = status;
 	error.key = key;
 	return error;
+};
+
+export const sendPasswordResetEmail = (
+	{ _id, email },
+	redirectUrl,
+	next,
+	res
+) => {
+	const users = db.collection("users");
+
+	const passwordResetToken = "";
+
+	const url = `${redirectUrl}/${_id}/${passwordResetToken}`;
+	const saltRounds = 10;
+	bcrypt
+		.hash(passwordResetToken, saltRounds)
+		.then((hashedResetToken) => {
+			const user = users.updateOne(
+				{ _id },
+				{
+					$set: {
+						passwordReset: {
+							token: hashedResetToken,
+							createdAt: Date.now(),
+							expiresAt: Date.now() + 3600000,
+						},
+					},
+				}
+			);
+
+			//check if updated went trhough
+			//send email
+		})
+		.error((error) => {
+			next(error);
+		});
 };
