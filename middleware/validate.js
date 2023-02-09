@@ -17,6 +17,7 @@ export const validateUser = async (req, res, next) => {
 			phoneNumber,
 			password,
 			confirmPassword,
+			signUpCodeVerified,
 		} = req.body;
 
 		phoneNumber = phoneNumber.replace("-", "");
@@ -71,20 +72,32 @@ export const validateUser = async (req, res, next) => {
 				)
 			);
 
-		// // Validate password
-		// const { isValidPassword, passwordError } = isPassword(password);
-		// if (!isValidPassword)
-		// 	next(throwError(statusCodes.BAD_REQUEST, passwordError, "password"));
+		// Validate password
+		const { isValidPassword, passwordError } = isPassword(password);
 
-		// // Validate confirm password
-		// if (confirmPassword === password)
-		// 	next(
-		// 		throwError(
-		// 			statusCodes.BAD_REQUEST,
-		// 			"Passwords do not match.",
-		// 			"confirmPassword"
-		// 		)
-		// 	);
+		if (!isValidPassword)
+			next(
+				throwError(statusCodes.BAD_REQUEST, passwordError, "password")
+			);
+
+		// Validate confirm password
+		if (confirmPassword !== password)
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"Passwords do not match.",
+					"confirmPassword"
+				)
+			);
+
+		// Validate sign up code is good
+		if (signUpCodeVerified === false)
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"There has been an error with your sign up code, try again."
+				)
+			);
 
 		next();
 	} catch (error) {

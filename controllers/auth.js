@@ -4,25 +4,32 @@ import User from "../models/User.js";
 import { statusCodes } from "../constants/statusCodes.constants.js";
 import Stripe from "stripe";
 import { planTypes } from "../constants/organization.constants.js";
-import { sendPasswordResetEmail, throwError } from "../utils/helper.js";
+import {
+	isUniqueEmail,
+	isUniqueStoreName,
+	sendPasswordResetEmail,
+	throwError,
+} from "../utils/helper.js";
 import { db } from "../utils/db.js";
 
 /* REGISTER USER */
 export const register = async (req, res, next) => {
 	try {
-		const { firstName, lastName, email, password } = req.body;
+		console.log(req.body);
+		// const { firstName, lastName, email, password } = req.body;
 
-		const salt = await bcrypt.genSalt();
-		const passwordHash = await bcrypt.hash(password, salt);
+		// const salt = await bcrypt.genSalt();
+		// const passwordHash = await bcrypt.hash(password, salt);
 
-		const newUser = new User({
-			firstName,
-			lastName,
-			email,
-			password: passwordHash,
-		});
-		const savedUser = await newUser.save();
-		res.status(201).json(savedUser);
+		// const newUser = new User({
+		// 	firstName,
+		// 	lastName,
+		// 	email,
+		// 	password: passwordHash,
+		// });
+		// const savedUser = await newUser.save();
+		// res.status(201).json(savedUser);
+		res.status(201).json({});
 	} catch (error) {
 		next(error);
 	}
@@ -65,8 +72,26 @@ export const login = async (req, res, next) => {
 
 export const verifySignUpCode = async (req, res, next) => {
 	try {
-		// loop through sign up codes in db, check if the code exists in there, if it does then return code, storename, and users email
-		res.status(statusCodes.OK).json({ x: req.body });
+		const { code } = req.body;
+		const inviteCode = await db.collection("inviteCodes").findOne({ code });
+
+		if (!inviteCode)
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"Sign up code does not exist."
+				)
+			);
+
+		if (inviteCode.expiresAt < Date.now())
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"Sign up code has expired. Please contact your employer for a new sign up code."
+				)
+			);
+
+		res.status(statusCodes.OK).json({ code, storeId: inviteCode.store_id });
 	} catch (error) {
 		next(error);
 	}
@@ -97,7 +122,7 @@ export const forgotPassword = async (req, res, next) => {
 				next,
 				res
 			);
-    }
+		}
 
 		res.status(statusCodes.OK).json({ email });
 	} catch (error) {
@@ -155,6 +180,26 @@ export const checkoutSuccess = async (req, res, next) => {
 			const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 			res.status(statusCodes.OK).json({ user, token });
 		}
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const uniqueEmail = async (req, res, next) => {
+	try {
+		const email = req.query.email;
+		const isUnique = await isUniqueEmail(email);
+		res.status(statusCodes.OK).json({ isUnique: isUnique });
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const uniqueStoreName = async (req, res, next) => {
+	try {
+		const storeName = req.query.storeName;
+		const isUnique = await isUniqueStoreName(storeName);
+		res.status(statusCodes.OK).json({ isUnique: isUnique });
 	} catch (error) {
 		next(error);
 	}

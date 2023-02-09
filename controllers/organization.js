@@ -19,13 +19,3 @@ export const getOrganization = async (req, res, next) => {
 	const names = ["anthonys store", "test", "compumaster"];
 	res.json(names);
 };
-
-export const uniqueStoreName = async (req, res, next) => {
-	try {
-		const storeName = req.query.storeName;
-		const isUnique = await isUniqueStoreName(storeName);
-		res.status(statusCodes.OK).json({ isUnique: isUnique });
-	} catch (error) {
-		next(error);
-	}
-};

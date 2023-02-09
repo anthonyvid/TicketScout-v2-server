@@ -7,45 +7,45 @@ export const isString = (str) => {
 
 export const isPassword = (password) => {
 	if (!isString(password))
-		return { isPassword: false, passwordError: "Invalid Password." };
+		return { isValidPassword: false, passwordError: "Invalid Password." };
 
-	if (!password.length < 5)
+	if (password.length < 5)
 		return {
-			isPassword: false,
+			isValidPassword: false,
 			passwordError: "Password must be at least 5 characters.",
 		};
 
-	if (!password.length > 64)
+	if (password.length > 64)
 		return {
-			isPassword: false,
+			isValidPassword: false,
 			passwordError: "Password cannot exceed 64 characters.",
 		};
 
-	if (!password.test(/^(?=.*[a-z])/))
+	if (!/^(?=.*[a-z])/.test(password))
 		return {
-			isPassword: false,
+			isValidPassword: false,
 			passwordError: "Password must include lowercase letter.",
 		};
 
-	if (!password.test(/^(?=.*[A-Z])/))
+	if (!/^(?=.*[A-Z])/.test(password))
 		return {
-			isPassword: false,
+			isValidPassword: false,
 			passwordError: "Password must include uppercase letter.",
 		};
 
-	if (!password.test(/^(?=.*[0-9])/))
+	if (!/^(?=.*[0-9])/.test(password))
 		return {
-			isPassword: false,
+			isValidPassword: false,
 			passwordError: "Password must include digit.",
 		};
 
-	if (!password.test(/^(?=.*[!@#\$%\^&\*])/))
+	if (!/^(?=.*[!@#\$%\^&\*])/.test(password))
 		return {
-			isPassword: false,
+			isValidPassword: false,
 			passwordError: "Password must include special character.",
 		};
 
-	return { isPassword: true, passwordError: "" };
+	return { isValidPassword: true, passwordError: "" };
 };
 
 export const isUniqueStoreName = async (storeName) => {

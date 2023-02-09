@@ -2,15 +2,7 @@ import { statusCodes } from "../constants/statusCodes.constants.js";
 import { isUniqueEmail, throwError } from "../utils/helper.js";
 import bcrypt from "bcrypt";
 
-export const uniqueEmail = async (req, res, next) => {
-	try {
-		const email = req.query.email;
-		const isUnique = await isUniqueEmail(email);
-		res.status(statusCodes.OK).json({ isUnique: isUnique });
-	} catch (error) {
-		next(error);
-	}
-};
+
 
 export const resetPassword = async (req, res, next) => {
 	try {
