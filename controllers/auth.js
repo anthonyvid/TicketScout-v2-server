@@ -16,19 +16,34 @@ import { db } from "../utils/db.js";
 export const register = async (req, res, next) => {
 	try {
 		console.log(req.body);
-		// const { firstName, lastName, email, password } = req.body;
+		const {
+			firstname,
+			lastname,
+			email,
+			phoneNumber,
+			password,
+			organizationId,
+			signUpCode,
+		} = req.body;
 
-		// const salt = await bcrypt.genSalt();
-		// const passwordHash = await bcrypt.hash(password, salt);
+		const salt = await bcrypt.genSalt();
+		const passwordHash = await bcrypt.hash(password, salt);
 
-		// const newUser = new User({
-		// 	firstName,
-		// 	lastName,
-		// 	email,
-		// 	password: passwordHash,
-		// });
-		// const savedUser = await newUser.save();
-		// res.status(201).json(savedUser);
+		const newUser = new User({
+			firstname,
+			lastname,
+			email,
+			phoneNumber,
+			password: passwordHash,
+			organizationId,
+		});
+		await newUser.save();
+
+		// Delete sign up code
+		// await db
+		// 	.collection("inviteCodes")
+		// 	.deleteOne({ code: signUpCode, organizationId }); //todo: remove comment after
+
 		res.status(201).json({});
 	} catch (error) {
 		next(error);
@@ -74,7 +89,6 @@ export const verifySignUpCode = async (req, res, next) => {
 	try {
 		const { code } = req.body;
 		const inviteCode = await db.collection("inviteCodes").findOne({ code });
-
 		if (!inviteCode)
 			next(
 				throwError(
@@ -83,15 +97,18 @@ export const verifySignUpCode = async (req, res, next) => {
 				)
 			);
 
-		if (inviteCode.expiresAt < Date.now())
+		if (inviteCode?.expiresAt < Date.now())
 			next(
 				throwError(
 					statusCodes.BAD_REQUEST,
-					"Sign up code has expired. Please contact your employer for a new sign up code."
+					"Sign up code has expired. Please contact your employer to receive a new one."
 				)
 			);
-
-		res.status(statusCodes.OK).json({ code, storeId: inviteCode.store_id });
+		if (inviteCode)
+			res.status(statusCodes.OK).json({
+				code,
+				organizationId: inviteCode.organizationId,
+			});
 	} catch (error) {
 		next(error);
 	}

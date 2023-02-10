@@ -1,5 +1,7 @@
 import { db } from "./db.js";
 import bcrypt from "bcrypt";
+import { v4 } from "uuid";
+import nodemailer from "nodemailer";
 
 export const isString = (str) => {
 	return Object.prototype.toString.call(str) === "[object String]";
@@ -77,38 +79,72 @@ export const throwError = (status, message, key = null) => {
 	return error;
 };
 
-export const sendPasswordResetEmail = (
+export const sendPasswordResetEmail = async (
 	{ _id, email },
 	redirectUrl,
 	next,
 	res
 ) => {
-	const users = db.collection("users");
+	try {
+		const users = db.collection("users");
+		const passwordResetToken = v4 + _id;
+		const url = `${redirectUrl}/${_id}/${passwordResetToken}`;
+		const saltRounds = 10;
 
-	const passwordResetToken = "";
+		// Delete existing reset token
+		await users.updateOne({ _id }, { $unset: { passwordReset: "" } });
 
-	const url = `${redirectUrl}/${_id}/${passwordResetToken}`;
-	const saltRounds = 10;
-	bcrypt
-		.hash(passwordResetToken, saltRounds)
-		.then((hashedResetToken) => {
-			const user = users.updateOne(
-				{ _id },
-				{
-					$set: {
-						passwordReset: {
-							token: hashedResetToken,
-							createdAt: Date.now(),
-							expiresAt: Date.now() + 3600000,
-						},
+		const hashedResetToken = await bcrypt.hash(
+			passwordResetToken,
+			saltRounds
+		);
+
+		const user = await users.updateOne(
+			{ _id },
+			{
+				$set: {
+					passwordReset: {
+						token: hashedResetToken,
+						createdAt: Date.now(),
+						expiresAt: Date.now() + 3600000,
 					},
-				}
-			);
+				},
+			}
+		);
 
-			//check if updated went trhough
-			//send email
-		})
-		.error((error) => {
-			next(error);
-		});
+		if (user.acknowledged) {
+			// Send email
+			sendEmail({
+				from: process.env.NODEMAILER_EMAIL,
+				to: email,
+				subject: "TicketScout Password Reset",
+				html: `<p>We heard that you forgot your password.</p> <p>Dont worry, use the link below to reset it.</p>
+                <p>This link <b>expires in 60 minutes</b>.</p><p>Press <a href=${url}>here</a> to proceed.
+                `,
+			});
+		}
+
+		console.log(user);
+	} catch (error) {
+		return error;
+	}
+};
+
+const transporter = nodemailer.createTransport({
+	host: "smtp.gmail.com",
+	service: "gmail",
+	secure: false,
+	auth: {
+		user: process.env.NODEMAILER_EMAIL,
+		pass: process.env.NODEMAILER_PASSWORD,
+	},
+});
+
+export const sendEmail = async (options) => {
+	try {
+		const info = await transporter.sendMail(options);
+		console.log(info);
+	} catch (error) {
+		return error;
+	}
 };

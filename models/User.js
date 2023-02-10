@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { permission } from "../constants/user.constants.js";
+import { accountStatus, permission } from "../constants/user.constants.js";
 
 const UserSchema = new mongoose.Schema(
 	{
@@ -12,28 +12,24 @@ const UserSchema = new mongoose.Schema(
 			required: true,
 		},
 		permission: {
-			type: String,
+			type: Number,
 			default: permission.BASIC,
 		},
 		address: {
 			street: {
 				type: String,
-				required: true,
 			},
 			city: {
 				type: String,
-				required: true,
 			},
 			province: {
 				type: String,
-				required: true,
 			},
 			country: {
 				type: String,
-				required: true,
 			},
 		},
-		phone: {
+		phoneNumber: {
 			type: String,
 			required: true,
 		},
@@ -41,9 +37,8 @@ const UserSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		jobTitle: String,
-		contractType: {
-			type: Number,
+		password: {
+			type: String,
 			required: true,
 		},
 		timesheets: mongoose.Schema.Types.Mixed,
@@ -51,13 +46,9 @@ const UserSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		organizationReferralId: {
+		accountStatus: {
 			type: Number,
-			required: true,
-		},
-		status: {
-			type: Number,
-			required: true,
+			default: accountStatus.ACTIVE,
 		},
 	},
 	{ timestamps: true }
