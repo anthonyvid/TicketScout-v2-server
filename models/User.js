@@ -41,8 +41,11 @@ const UserSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		timesheets: mongoose.Schema.Types.Mixed,
 		organizationId: {
+			type: String,
+			required: true,
+		},
+		storeUrl: {
 			type: String,
 			required: true,
 		},

@@ -5,17 +5,17 @@ import { statusCodes } from "../constants/statusCodes.constants.js";
 import Stripe from "stripe";
 import { planTypes } from "../constants/organization.constants.js";
 import {
+	getUser,
 	isUniqueEmail,
 	isUniqueStoreName,
 	sendPasswordResetEmail,
 	throwError,
 } from "../utils/helper.js";
-import { db } from "../utils/db.js";
+import { connectToDatabase, db, ObjectId } from "../utils/db.js";
 
 /* REGISTER USER */
 export const register = async (req, res, next) => {
 	try {
-		console.log(req.body);
 		const {
 			firstname,
 			lastname,
@@ -23,8 +23,11 @@ export const register = async (req, res, next) => {
 			phoneNumber,
 			password,
 			organizationId,
+			storeUrl,
 			signUpCode,
 		} = req.body;
+
+		console.log(storeUrl);
 
 		const salt = await bcrypt.genSalt();
 		const passwordHash = await bcrypt.hash(password, salt);
@@ -36,15 +39,20 @@ export const register = async (req, res, next) => {
 			phoneNumber,
 			password: passwordHash,
 			organizationId,
+			storeUrl,
 		});
-		await newUser.save();
+		const user = await newUser.save();
+
+		if (!user) next(throwError(statusCodes.INTERNAL_ERROR));
 
 		// Delete sign up code
 		// await db
 		// 	.collection("inviteCodes")
 		// 	.deleteOne({ code: signUpCode, organizationId }); //todo: remove comment after
 
-		res.status(201).json({});
+		// add user to organizations users collection
+
+		res.status(201).json(user);
 	} catch (error) {
 		next(error);
 	}
@@ -77,8 +85,21 @@ export const login = async (req, res, next) => {
 			);
 		}
 
+		if (user.accountStatus !== accountStatus.ACTIVE) {
+			next(
+				throwError(
+					statusCodes.BAD_REQUEST,
+					"Your account is currently inactive."
+				)
+			);
+		}
+
 		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 		delete user.password;
+
+		// Connect to users organization Database
+		await connectToDatabase(user.organizationId);
+
 		res.status(statusCodes.OK).json({ token, user });
 	} catch (error) {
 		next(error);
@@ -104,9 +125,11 @@ export const verifySignUpCode = async (req, res, next) => {
 					"Sign up code has expired. Please contact your employer to receive a new one."
 				)
 			);
+		console.log(inviteCode);
 		if (inviteCode)
 			res.status(statusCodes.OK).json({
 				code,
+				storeUrl: inviteCode.storeUrl,
 				organizationId: inviteCode.organizationId,
 			});
 	} catch (error) {
@@ -117,7 +140,7 @@ export const verifySignUpCode = async (req, res, next) => {
 /* LOGGING OUT */
 export const logout = async (req, res, next) => {
 	try {
-		//
+		await connectToDatabase();
 	} catch (error) {
 		next(error);
 	}
@@ -135,9 +158,7 @@ export const forgotPassword = async (req, res, next) => {
 			// send email
 			sendPasswordResetEmail(
 				user,
-				`${clientBaseUrl}/account/reset-password`,
-				next,
-				res
+				`${clientBaseUrl}/account/reset-password`
 			);
 		}
 
@@ -217,6 +238,37 @@ export const uniqueStoreName = async (req, res, next) => {
 		const storeName = req.query.storeName;
 		const isUnique = await isUniqueStoreName(storeName);
 		res.status(statusCodes.OK).json({ isUnique: isUnique });
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const isAuthenticated = async (req, res, next) => {
+	try {
+		const { _id, organizationId, accountStatus, email } = req.body.user;
+
+		await connectToDatabase(organizationId); //todo: ?
+		const orgData = await db
+			.collection("organization")
+			.findOne({ organizationId: ObjectId(organizationId) });
+		const user = await getUser(_id);
+
+		const authorized =
+			!user ||
+			user.organizationId !== orgData.organizationId.toString() ||
+			user.accountStatus !== accountStatus.ACTIVE ||
+			user.email !== email;
+
+		if (!authorized) {
+			next(
+				throwError(
+					statusCodes.FORBIDDEN,
+					"Access denied due to invalid credentials. Please log in."
+				)
+			);
+		} else {
+			res.status(statusCodes.OK).send();
+		}
 	} catch (error) {
 		next(error);
 	}

@@ -1,18 +1,21 @@
 import { statusCodes } from "../constants/statusCodes.constants.js";
-import { isUniqueEmail, throwError } from "../utils/helper.js";
+import { getUser, isUniqueEmail, throwError } from "../utils/helper.js";
 import bcrypt from "bcrypt";
-
-
+import { db, ObjectId } from "../utils/db.js";
 
 export const resetPassword = async (req, res, next) => {
 	try {
-		// get userID and reset token from params, also passwords
-		// if there is a user, and that token is existing, and isnt expired
-		// then we can reset password
+		const { password, id, token } = req.body;
+		const users = db.collection("users");
+		const userFromDb = await getUser(id);
+		const expiresAt = userFromDb?.passwordReset?.expiresAt;
+		const hashedTokenFromDB = userFromDb?.passwordReset?.token;
 
 		if (expiresAt < Date.now()) {
-			//expired
-			//delete token record from user
+			await users.updateOne(
+				{ _id: ObjectId(id) },
+				{ $unset: { passwordReset: "" } }
+			);
 			next(
 				throwError(
 					statusCodes.BAD_REQUEST,
@@ -20,14 +23,13 @@ export const resetPassword = async (req, res, next) => {
 				)
 			);
 		} else {
-			// valid token
-			const isMatch = await bcrypt.compare(resetToken, hashedTokenFromDB);
+			const isMatch = await bcrypt.compare(token, hashedTokenFromDB);
 
 			if (!isMatch) {
 				next(
 					throwError(
 						statusCodes.BAD_REQUEST,
-						"Your password reser link is invalid. Please reset your password again."
+						"Your password reset link is invalid. Please reset your password again."
 					)
 				);
 			} else {
@@ -35,12 +37,32 @@ export const resetPassword = async (req, res, next) => {
 				const passwordHash = await bcrypt.hash(password, salt);
 				//update user password with new hashed password
 
-				//delete resetToken from user because its not needed anymore
+				const user = await users.updateOne(
+					{ _id: ObjectId(id) },
+					{
+						$set: {
+							password: passwordHash,
+						},
+						$unset: {
+							passwordReset: "",
+						},
+					}
+				);
 
-				// res.status(statusCodes.OK).json({user})
+				if (user.acknowledged) {
+					res.status(statusCodes.OK).json({
+						email: userFromDb.email,
+					});
+				} else {
+					next(
+						throwError(
+							statusCodes.BAD_REQUEST,
+							"Error resetting your password. Please try again."
+						)
+					);
+				}
 			}
 		}
-		res.status(statusCodes.OK).json({ isUnique: isUnique });
 	} catch (error) {
 		next(error);
 	}

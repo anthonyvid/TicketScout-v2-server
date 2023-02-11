@@ -1,7 +1,9 @@
-import { db } from "./db.js";
+import { db, ObjectId } from "./db.js";
 import bcrypt from "bcrypt";
-import { v4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import nodemailer from "nodemailer";
+import validator from "validator";
+
 
 export const isString = (str) => {
 	return Object.prototype.toString.call(str) === "[object String]";
@@ -79,15 +81,10 @@ export const throwError = (status, message, key = null) => {
 	return error;
 };
 
-export const sendPasswordResetEmail = async (
-	{ _id, email },
-	redirectUrl,
-	next,
-	res
-) => {
+export const sendPasswordResetEmail = async ({ _id, email }, redirectUrl) => {
 	try {
 		const users = db.collection("users");
-		const passwordResetToken = v4 + _id;
+		const passwordResetToken = uuidv4() + _id;
 		const url = `${redirectUrl}/${_id}/${passwordResetToken}`;
 		const saltRounds = 10;
 
@@ -113,8 +110,7 @@ export const sendPasswordResetEmail = async (
 		);
 
 		if (user.acknowledged) {
-			// Send email
-			sendEmail({
+			await sendEmail({
 				from: process.env.NODEMAILER_EMAIL,
 				to: email,
 				subject: "TicketScout Password Reset",
@@ -123,27 +119,41 @@ export const sendPasswordResetEmail = async (
                 `,
 			});
 		}
-
-		console.log(user);
 	} catch (error) {
 		return error;
 	}
 };
 
-const transporter = nodemailer.createTransport({
-	host: "smtp.gmail.com",
-	service: "gmail",
-	secure: false,
-	auth: {
-		user: process.env.NODEMAILER_EMAIL,
-		pass: process.env.NODEMAILER_PASSWORD,
-	},
-});
+/**
+ * Sends an email using nodemailer module
+ * @param {string} msg
+ */
+export const sendEmail = async (msg) => {
+	let transporter = nodemailer.createTransport({
+		service: "gmail",
+		auth: {
+			user: process.env.NODEMAILER_EMAIL,
+			pass: process.env.NODEMAILER_PASSWORD,
+		},
+	});
 
-export const sendEmail = async (options) => {
+	await transporter.sendMail(msg, (err) => {
+		if (err) {
+			throwError(statusCodes.INTERNAL_ERROR);
+		}
+	});
+};
+
+export const getUser = async (searchParam) => {
 	try {
-		const info = await transporter.sendMail(options);
-		console.log(info);
+		const users = db.collection("users");
+		let user = null;
+		if (!validator.isEmail(searchParam)) {
+			user = await users.findOne({ _id: ObjectId(searchParam) });
+		} else {
+			user = await users.findOne({ email: searchParam });
+		}
+		return user;
 	} catch (error) {
 		return error;
 	}

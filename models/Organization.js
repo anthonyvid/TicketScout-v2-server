@@ -1,52 +1,26 @@
 import mongoose from "mongoose";
-import { subscription } from "../constants/organization.constants";
+import { connectToDatabase } from "../utils/db.js";
 
 const OrganizationSchema = new mongoose.Schema(
 	{
-		// _id: {
-		// 	type: String,
-		// 	unique: true,
-		// },
-		name: {
+		storeName: {
 			type: String,
 			required: true,
 			unique: true,
 		},
-		address: {
-			street: {
-				type: String,
-				required: true,
-			},
-			city: {
-				type: String,
-				required: true,
-			},
-			province: {
-				type: String,
-				required: true,
-			},
-			country: {
-				type: String,
-				required: true,
-			},
-		},
-		phone: {
+		storeUrl: {
 			type: String,
 			required: true,
-		},
-		email: {
-			type: String,
-			required: true,
-		},
-		employees: mongoose.Schema.Types.Mixed,
-		subscription: {
-			type: Number,
-			default: subscription.BASIC,
+			unique: true,
 		},
 	},
 	{ timestamps: true }
 );
 
-const Organization = mongoose.model("Store", OrganizationSchema);
+const Organization = mongoose.model("Organization", OrganizationSchema);
+
+export const initializeOrganization = async (id) => {
+	await connectToDatabase(id);
+};
 
 export default Organization;

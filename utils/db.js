@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
-const db = mongoose.connection;
+let db = mongoose.connection;
+import mongoClient from "mongodb";
+const { ObjectId } = mongoClient;
 
-const connectToDatabase = (database = "entities") => {
+const initDatabase = (database = "entities") => {
+	db.close();
 	mongoose.set("strictQuery", true);
 	mongoose
 		.connect(
@@ -12,6 +15,7 @@ const connectToDatabase = (database = "entities") => {
 			}
 		)
 		.then((response) => {
+			db = mongoose.connection;
 			console.log(`Connected to MongoDb: ${database}`);
 		})
 		.catch((err) => {
@@ -19,4 +23,14 @@ const connectToDatabase = (database = "entities") => {
 		});
 };
 
-export { db, connectToDatabase };
+const connectToDatabase = async (database = "entities") => {
+	try {
+		const options = { useCache: true, noListender: true };
+		db = mongoose.connection.useDb(database, options);
+		console.log(`Connected to MongoDb: ${database}`);
+	} catch (error) {
+		console.log("Mongodb is not connected: ", error);
+	}
+};
+
+export { db, ObjectId, connectToDatabase, initDatabase };

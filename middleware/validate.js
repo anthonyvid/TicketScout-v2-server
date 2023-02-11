@@ -95,7 +95,8 @@ export const validateUser = async (req, res, next) => {
 			next(
 				throwError(
 					statusCodes.BAD_REQUEST,
-					"There has been an error with your sign up code, try again."
+					"There has been an error with your sign up code, try again.",
+					"signUpCode"
 				)
 			);
 

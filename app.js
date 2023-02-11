@@ -13,7 +13,7 @@ import organizationRoutes from "./routes/organization.js";
 import ticketRoutes from "./routes/ticket.js";
 import userRoutes from "./routes/user.js";
 import ErrorHandler from "./middleware/ErrorHandler.js";
-import { connectToDatabase } from "./utils/db.js";
+import { initDatabase } from "./utils/db.js";
 
 Sentry.init({
 	dsn: process.env.SENTRY_DSN,
@@ -35,7 +35,7 @@ app.use(cors());
 app.use("/assets", express.static(path.join(__dirname, "public/assets"))); // for prod can use s3
 
 // Connect to mongoDB
-connectToDatabase();
+initDatabase();
 
 /* ROUTES */
 app.use("/api/auth", authRoutes);

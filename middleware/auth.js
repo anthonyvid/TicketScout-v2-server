@@ -1,19 +1,23 @@
 import jwt from "jsonwebtoken";
+import { statusCodes } from "../constants/statusCodes.constants.js";
+import { throwError } from "../utils/helper.js";
 
 export const verifyToken = async (req, res, next) => {
 	try {
-		let token = req.header("Authorization");
+		const { token } = req.body;
 
-		if (!token) return res.status(403).send("Access Denied");
-
-		if (token.startsWith("Bearer ")) {
-			token = token.slice(7, token.length).trimLeft();
-		}
+		if (!token)
+			next(
+				throwError(
+					statusCodes.UNAUTHORIZED,
+					"Please log in to view this resource."
+				)
+			);
 
 		const verified = jwt.verify(token, process.env.JWT_SECRET);
 		req.user = verified;
 		next();
 	} catch (error) {
-		res.status(500).json({ error: error.message });
+		next(error);
 	}
 };
