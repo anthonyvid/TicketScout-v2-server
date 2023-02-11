@@ -61,10 +61,10 @@ export const createOrganization = async (req, res, next) => {
 		initializeOrganization(org._id.toString());
 
 		// Add user to organizations users
-		db.collection("users").insertOne(newUser);
+		await db.collection("users").insertOne(newUser);
 
 		// Set org data
-		db.collection("organization").insertOne({
+		await db.collection("organization").insertOne({
 			address: {
 				street: "",
 				city: "",

@@ -27,8 +27,6 @@ export const register = async (req, res, next) => {
 			signUpCode,
 		} = req.body;
 
-		console.log(storeUrl);
-
 		const salt = await bcrypt.genSalt();
 		const passwordHash = await bcrypt.hash(password, salt);
 
@@ -50,9 +48,16 @@ export const register = async (req, res, next) => {
 		// 	.collection("inviteCodes")
 		// 	.deleteOne({ code: signUpCode, organizationId }); //todo: remove comment after
 
-		// add user to organizations users collection
+		// Connect to users organization Database
+		await connectToDatabase(user.organizationId);
 
-		res.status(201).json(user);
+		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+		delete user.password;
+
+		// Add user to organizations users collection
+		await db.collection("users").insertOne(newUser);
+
+		res.status(201).json({ user, token });
 	} catch (error) {
 		next(error);
 	}
