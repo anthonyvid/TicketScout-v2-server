@@ -4,7 +4,13 @@ import { throwError } from "../utils/helper.js";
 
 export const verifyToken = async (req, res, next) => {
 	try {
-		const { token } = req.body;
+		let { token } = req.body;
+
+		if (!token) {
+			const authHeader = req.header("authorization");
+			if (authHeader.startsWith("Bearer "))
+				token = authHeader.substring(7, authHeader.length);
+		}
 
 		if (!token)
 			next(
@@ -21,3 +27,5 @@ export const verifyToken = async (req, res, next) => {
 		next(error);
 	}
 };
+
+export const verifyDatabase = (req, res, next) => {};

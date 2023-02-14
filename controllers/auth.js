@@ -12,6 +12,7 @@ import {
 	throwError,
 } from "../utils/helper.js";
 import { connectToDatabase, db, ObjectId } from "../utils/db.js";
+import { accountStatus } from "../constants/user.constants.js";
 
 /* REGISTER USER */
 export const register = async (req, res, next) => {
@@ -252,7 +253,8 @@ export const isAuthenticated = async (req, res, next) => {
 	try {
 		const { _id, organizationId, accountStatus, email } = req.body.user;
 
-		await connectToDatabase(organizationId); //todo: ?
+		if (db.name !== organizationId) await connectToDatabase(organizationId);
+
 		const orgData = await db
 			.collection("organization")
 			.findOne({ organizationId: ObjectId(organizationId) });
