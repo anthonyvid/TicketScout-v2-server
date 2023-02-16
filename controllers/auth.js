@@ -158,7 +158,7 @@ export const forgotPassword = async (req, res, next) => {
 		const { email } = req.body;
 		const users = db.collection("users");
 		const user = await users.findOne({ email });
-
+		console.log(user);
 		if (user) {
 			const clientBaseUrl = new URL(req.header("Referer")).origin;
 			// send email
