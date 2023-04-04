@@ -41,6 +41,7 @@ initDatabase();
 app.use("/api/auth", authRoutes);
 app.use("/api/organizations", organizationRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/tickets", ticketRoutes);
 // app.use("/api/:store", ticketRoutes);
 // app.use("/api/:store", customerRoutes);
 

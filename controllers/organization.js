@@ -6,7 +6,7 @@ import Organization, {
 import { isUniqueStoreName, throwError } from "../utils/helper.js";
 import bcrypt from "bcrypt";
 import User from "../models/User.js";
-import { db } from "../utils/db.js";
+import { db, ObjectId } from "../utils/db.js";
 export const getOrganizations = async (req, res, next) => {
 	let names = ["anthonys store", "test", "compumaster"];
 	names = names.filter((name) => name.toLowerCase());
@@ -90,4 +90,20 @@ export const getOrganization = async (req, res, next) => {
 
 	const names = ["anthonys store", "test", "compumaster"];
 	res.json(names);
+};
+
+export const getOrganizationById = async (req, res, next) => {
+	try {
+		const organization = await db
+			.collection("organization")
+			.findOne({ organizationId: ObjectId(req.params.id) });
+
+		if (!organization) {
+			next(throwError(statusCodes.INTERNAL_ERROR));
+		}
+
+		res.status(statusCodes.OK).json({ organization });
+	} catch (error) {
+		next(error);
+	}
 };
