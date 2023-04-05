@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { connectToDatabase } from "../utils/db.js";
+import { connectToDatabase, db } from "../utils/db.js";
 
 const OrganizationSchema = new mongoose.Schema(
 	{
@@ -21,6 +21,9 @@ const Organization = mongoose.model("Organization", OrganizationSchema);
 
 export const initializeOrganization = async (id) => {
 	await connectToDatabase(id);
+	await db.createCollection("payments");
+	await db.createCollection("customers");
+	await db.createCollection("tickets");
 };
 
 export default Organization;

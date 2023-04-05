@@ -12,7 +12,9 @@ import {
 	throwError,
 } from "../utils/helper.js";
 import { connectToDatabase, db, ObjectId } from "../utils/db.js";
-import { accountStatus } from "../constants/user.constants.js";
+import { accountStatus, permission } from "../constants/user.constants.js";
+
+import Ticket from "../models/Ticket.js";
 
 /* REGISTER USER */
 export const register = async (req, res, next) => {
@@ -251,9 +253,11 @@ export const uniqueStoreName = async (req, res, next) => {
 
 export const isAuthenticated = async (req, res, next) => {
 	try {
-		const { _id, organizationId, accountStatus, email } = req.body.user;
+		const { _id, organizationId, accountStatus, email, permission } =
+			req.body.user;
 
-		if (db.name !== organizationId) await connectToDatabase(organizationId);
+		if (db.name !== organizationId && permission !== permission.SUPER_USER)
+			await connectToDatabase(organizationId);
 
 		const orgData = await db
 			.collection("organization")
@@ -265,6 +269,15 @@ export const isAuthenticated = async (req, res, next) => {
 			user.organizationId !== orgData.organizationId.toString() ||
 			user.accountStatus !== accountStatus.ACTIVE ||
 			user.email !== email;
+
+		const c1 = new Ticket({
+			title: "",
+			description: "",
+			customer: c,
+			typeId: "",
+			createdBy: req.body.user,
+		});
+		await db.collection("tickets").insertOne(c1);
 
 		if (!authorized) {
 			next(

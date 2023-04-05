@@ -2,6 +2,7 @@ export const permission = Object.freeze({
 	BASIC: 0,
 	MANAGER: 1,
 	ADMIN: 2,
+	SUPER_USER: 3,
 });
 
 export const contractType = Object.freeze({
@@ -16,5 +17,3 @@ export const accountStatus = Object.freeze({
 	ACTIVE: 1, // User account active
 	DEACTIVATED: 2, // User account deactivated
 });
-
-

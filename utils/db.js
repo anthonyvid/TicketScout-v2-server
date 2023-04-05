@@ -28,8 +28,10 @@ const connectToDatabase = async (database = "entities") => {
 		const options = { useCache: true, noListender: true };
 		db = mongoose.connection.useDb(database, options);
 		console.log(`Connected to MongoDb: ${database}`);
+        return db;
 	} catch (error) {
 		console.log("Mongodb is not connected: ", error);
+        return error;
 	}
 };
 

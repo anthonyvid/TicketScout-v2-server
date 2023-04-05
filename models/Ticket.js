@@ -1,12 +1,11 @@
 import mongoose from "mongoose";
-import { ticketStatus } from "../constants/ticket.constants";
-import Chat from "./Chat";
 import Customer from "./Customer";
+import Invoice from "./Invoice.js";
 import User from "./User";
 
 const TicketSchema = new mongoose.Schema(
 	{
-		subject: {
+		title: {
 			type: String,
 			required: true,
 		},
@@ -16,7 +15,7 @@ const TicketSchema = new mongoose.Schema(
 		},
 		status: {
 			type: Number,
-			default: ticketStatus.NEW,
+			default: ticketStatus,
 		},
 		customer: {
 			type: Customer,
@@ -30,10 +29,11 @@ const TicketSchema = new mongoose.Schema(
 			type: User,
 			required: true,
 		},
-		chat: {
-			type: Chat,
-			required: true,
+		chatHistory: {
+			type: Array,
+			default: [],
 		},
+		invoice: Invoice,
 	},
 	{ timestamps: true }
 );

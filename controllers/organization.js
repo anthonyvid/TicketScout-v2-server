@@ -6,14 +6,21 @@ import Organization, {
 import { isUniqueStoreName, throwError } from "../utils/helper.js";
 import bcrypt from "bcrypt";
 import User from "../models/User.js";
-import { db, ObjectId } from "../utils/db.js";
-export const getOrganizations = async (req, res, next) => {
-	let names = ["anthonys store", "test", "compumaster"];
-	names = names.filter((name) => name.toLowerCase());
-	res.status(200).json({ organizations: names });
-};
+import jwt from "jsonwebtoken";
+import { connectToDatabase, db, ObjectId } from "../utils/db.js";
 
-export const getDashboard = async (req, res, next) => {};
+export const getOrganizations = async (req, res, next) => {
+	try {
+		// Connect to entities
+		await connectToDatabase();
+		const cursor = await db.collection("organizations").find();
+		let orgs = await cursor.toArray();
+		orgs = orgs.filter((org) => org.storeName.toLowerCase());
+		res.status(statusCodes.OK).json({ organizations: orgs });
+	} catch (error) {
+		next(error);
+	}
+};
 
 export const createOrganization = async (req, res, next) => {
 	try {
@@ -61,7 +68,7 @@ export const createOrganization = async (req, res, next) => {
 		initializeOrganization(org._id.toString());
 
 		// Add user to organizations users
-		await db.collection("users").insertOne(newUser);
+		await db.collection("users").insertOne(user);
 
 		// Set org data
 		await db.collection("organization").insertOne({
@@ -79,17 +86,16 @@ export const createOrganization = async (req, res, next) => {
 			organizationId: org._id,
 		});
 
-		res.status(statusCodes.OK).json(org);
+		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
+		res.status(statusCodes.OK).json({
+			organization: org,
+			user: user,
+			token,
+		});
 	} catch (error) {
 		next(error);
 	}
-};
-
-export const getOrganization = async (req, res, next) => {
-	const { orgName } = req.body;
-
-	const names = ["anthonys store", "test", "compumaster"];
-	res.json(names);
 };
 
 export const getOrganizationById = async (req, res, next) => {

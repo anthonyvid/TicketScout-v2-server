@@ -14,24 +14,28 @@ const CustomerSchema = new mongoose.Schema(
 			type: Array,
 			default: [],
 		},
-		address: {
-			street: {
-				type: String,
-				required: true,
-			},
-			city: {
-				type: String,
-				required: true,
-			},
-			province: {
-				type: String,
-				required: true,
-			},
-			country: {
-				type: String,
-				required: true,
-			},
+		invoices: {
+			type: Array,
+			default: [],
 		},
+		// address: {
+		// 	street: {
+		// 		type: String,
+		// 		required: true,
+		// 	},
+		// 	city: {
+		// 		type: String,
+		// 		required: true,
+		// 	},
+		// 	province: {
+		// 		type: String,
+		// 		required: true,
+		// 	},
+		// 	country: {
+		// 		type: String,
+		// 		required: true,
+		// 	},
+		// },
 		phone: {
 			type: String,
 			required: true,
