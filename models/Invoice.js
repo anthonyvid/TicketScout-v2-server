@@ -1,7 +1,4 @@
 import mongoose from "mongoose";
-import Customer from "./Customer.js";
-import Payment from "./Payment.js";
-import Ticket from "./Ticket.js";
 
 const InvoiceSchema = new mongoose.Schema(
 	{
@@ -10,11 +7,13 @@ const InvoiceSchema = new mongoose.Schema(
 			required: true,
 		},
 		customer: {
-			type: Customer,
+			type: mongoose.ObjectId,
+			ref: "Customer",
 			required: true,
 		},
 		ticket: {
-			type: Ticket,
+			type: mongoose.ObjectId,
+			ref: "Ticket",
 			required: true,
 		},
 		amount: {
@@ -22,13 +21,14 @@ const InvoiceSchema = new mongoose.Schema(
 			required: true,
 		},
 		payment: {
-			type: Payment,
+			type: mongoose.ObjectId,
+			ref: "Payment",
 			required: true,
 		},
 	},
 	{ timestamps: true }
 );
 
-const Invoice = mongoose.model("Customer", InvoiceSchema);
+const Invoice = mongoose.model("Invoice", InvoiceSchema);
 
 export default Invoice;

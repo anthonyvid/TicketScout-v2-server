@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
-import Customer from "./Customer";
-import Invoice from "./Invoice.js";
-import User from "./User";
+import { ticketStatus } from "../constants/ticket.constants.js";
 
 const TicketSchema = new mongoose.Schema(
 	{
+		ticketId: {
+			type: String,
+			required: true,
+		},
 		title: {
 			type: String,
 			required: true,
@@ -15,10 +17,11 @@ const TicketSchema = new mongoose.Schema(
 		},
 		status: {
 			type: Number,
-			default: ticketStatus,
+			default: ticketStatus.NEW,
 		},
 		customer: {
-			type: Customer,
+			type: mongoose.ObjectId,
+			ref: "Customer",
 			required: true,
 		},
 		typeId: {
@@ -26,18 +29,22 @@ const TicketSchema = new mongoose.Schema(
 			default: "",
 		},
 		createdBy: {
-			type: User,
+			type: mongoose.ObjectId,
+			ref: "User",
 			required: true,
 		},
 		chatHistory: {
 			type: Array,
 			default: [],
 		},
-		invoice: Invoice,
+		invoice: {
+			type: mongoose.ObjectId,
+			ref: "Invoice",
+			required: true,
+		},
 	},
 	{ timestamps: true }
 );
 
 const Ticket = mongoose.model("Ticket", TicketSchema);
-
 export default Ticket;

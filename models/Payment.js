@@ -15,14 +15,10 @@ const PaymentSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
-		invoiceReference: {
-			type: Invoice,
-			required: true,
-		},
 	},
 	{ timestamps: true }
 );
 
-const Payment = mongoose.model("Customer", PaymentSchema);
+const Payment = mongoose.model("Payment", PaymentSchema);
 
 export default Payment;

@@ -14,8 +14,10 @@ export const getOrganizations = async (req, res, next) => {
 		// Connect to entities
 		await connectToDatabase();
 		const cursor = await db.collection("organizations").find();
+		if (!cursor) next(throwError(statusCodes.INTERNAL_ERROR));
+
 		let orgs = await cursor.toArray();
-		orgs = orgs.filter((org) => org.storeName.toLowerCase());
+		orgs = arrayToObject(orgs, "_id");
 		res.status(statusCodes.OK).json({ organizations: orgs });
 	} catch (error) {
 		next(error);

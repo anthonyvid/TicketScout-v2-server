@@ -12,9 +12,7 @@ import {
 	throwError,
 } from "../utils/helper.js";
 import { connectToDatabase, db, ObjectId } from "../utils/db.js";
-import { accountStatus, permission } from "../constants/user.constants.js";
-
-import Ticket from "../models/Ticket.js";
+import { accountStatus } from "../constants/user.constants.js";
 
 /* REGISTER USER */
 export const register = async (req, res, next) => {
@@ -269,15 +267,6 @@ export const isAuthenticated = async (req, res, next) => {
 			user.organizationId !== orgData.organizationId.toString() ||
 			user.accountStatus !== accountStatus.ACTIVE ||
 			user.email !== email;
-
-		const c1 = new Ticket({
-			title: "",
-			description: "",
-			customer: c,
-			typeId: "",
-			createdBy: req.body.user,
-		});
-		await db.collection("tickets").insertOne(c1);
 
 		if (!authorized) {
 			next(
