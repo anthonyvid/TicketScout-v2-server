@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 import { ticketStatus } from "../constants/ticket.constants.js";
+import Sequence from "mongoose-sequence";
+import { ObjectId } from "../utils/db.js";
 
 const TicketSchema = new mongoose.Schema(
 	{
 		ticketId: {
-			type: String,
-			required: true,
+			type: Number,
+			unique: true,
 		},
 		title: {
 			type: String,
@@ -20,7 +22,7 @@ const TicketSchema = new mongoose.Schema(
 			default: ticketStatus.NEW,
 		},
 		customer: {
-			type: mongoose.ObjectId,
+			type: ObjectId,
 			ref: "Customer",
 			required: true,
 		},
@@ -29,8 +31,13 @@ const TicketSchema = new mongoose.Schema(
 			default: "",
 		},
 		createdBy: {
-			type: mongoose.ObjectId,
+			type: ObjectId,
 			ref: "User",
+			required: true,
+		},
+		organizationId: {
+			type: ObjectId,
+			ref: "Organization",
 			required: true,
 		},
 		chatHistory: {
@@ -38,13 +45,16 @@ const TicketSchema = new mongoose.Schema(
 			default: [],
 		},
 		invoice: {
-			type: mongoose.ObjectId,
+			type: ObjectId,
 			ref: "Invoice",
-			required: true,
+			default: null,
 		},
 	},
 	{ timestamps: true }
 );
+
+const AutoIncrement = Sequence(mongoose);
+TicketSchema.plugin(AutoIncrement, { inc_field: "ticketId", start_seq: 2000 });
 
 const Ticket = mongoose.model("Ticket", TicketSchema);
 export default Ticket;

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ObjectId } from "../utils/db.js";
 
 const InvoiceSchema = new mongoose.Schema(
 	{
@@ -7,12 +8,12 @@ const InvoiceSchema = new mongoose.Schema(
 			required: true,
 		},
 		customer: {
-			type: mongoose.ObjectId,
+			type: ObjectId,
 			ref: "Customer",
 			required: true,
 		},
 		ticket: {
-			type: mongoose.ObjectId,
+			type: ObjectId,
 			ref: "Ticket",
 			required: true,
 		},
@@ -21,7 +22,7 @@ const InvoiceSchema = new mongoose.Schema(
 			required: true,
 		},
 		payment: {
-			type: mongoose.ObjectId,
+			type: ObjectId,
 			ref: "Payment",
 			required: true,
 		},

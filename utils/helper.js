@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import nodemailer from "nodemailer";
 import validator from "validator";
-
+import User from "../models/User.js";
 
 export const isString = (str) => {
 	return Object.prototype.toString.call(str) === "[object String]";
@@ -146,12 +146,11 @@ export const sendEmail = async (msg) => {
 
 export const getUser = async (searchParam) => {
 	try {
-		const users = db.collection("users");
 		let user = null;
 		if (!validator.isEmail(searchParam)) {
-			user = await users.findOne({ _id: ObjectId(searchParam) });
+			user = await User.findOne({ _id: ObjectId(searchParam) });
 		} else {
-			user = await users.findOne({ email: searchParam });
+			user = await User.findOne({ email: searchParam });
 		}
 		return user;
 	} catch (error) {
@@ -168,4 +167,3 @@ export const arrayToObject = (array, key) => {
 		};
 	}, initialValue);
 };
-

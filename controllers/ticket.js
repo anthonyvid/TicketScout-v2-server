@@ -1,15 +1,33 @@
 import { statusCodes } from "../constants/statusCodes.constants.js";
-import { db } from "../utils/db.js";
-import { arrayToObject, throwError } from "../utils/helper.js";
+import Ticket from "../models/Ticket.js";
+import { ObjectId } from "../utils/db.js";
+import { throwError } from "../utils/helper.js";
 
 export const getTickets = async (req, res, next) => {
 	try {
-		const cursor = await db.collection("tickets").find();
-		if (!cursor) next(throwError(statusCodes.INTERNAL_ERROR));
+		res.json(res.paginatedResults);
+	} catch (error) {
+		next(error);
+	}
+};
 
-		let tickets = await cursor.toArray();
-		tickets = arrayToObject(tickets, "ticketId");
-		res.status(statusCodes.OK).json({ tickets });
+export const createTicket = async (req, res, next) => {
+	try {
+		const { title, description, customerId, userId } = req.body;
+		const organizationId = req.headers.organizationid;
+
+		const newTicket = new Ticket({
+			title,
+			description,
+			customer: ObjectId(customerId),
+			createdBy: ObjectId(userId),
+			organizationId: ObjectId(organizationId),
+		});
+		const ticket = await newTicket.save();
+
+		if (!ticket) return next(throwError(statusCodes.INTERNAL_ERROR));
+
+		res.status(statusCodes.CREATED).json({ ticket });
 	} catch (error) {
 		next(error);
 	}
@@ -17,12 +35,10 @@ export const getTickets = async (req, res, next) => {
 
 export const getTicketById = async (req, res, next) => {
 	try {
-		const ticket = await db
-			.collection("tickets")
-			.findOne({ ticketId: req.params.id });
+		const ticket = await Ticket.findOne({ ticketId: req.params.id });
 
 		if (!ticket) {
-			next(throwError(statusCodes.INTERNAL_ERROR));
+			return next(throwError(statusCodes.INTERNAL_ERROR));
 		}
 
 		res.status(statusCodes.OK).json({ ticket });

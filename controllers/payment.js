@@ -1,15 +1,10 @@
 import { statusCodes } from "../constants/statusCodes.constants.js";
-import { db } from "../utils/db.js";
-import { arrayToObject, throwError } from "../utils/helper.js";
+import { throwError } from "../utils/helper.js";
+import Payment from "../models/Payment.js";
 
 export const getPayments = async (req, res, next) => {
 	try {
-		const cursor = await db.collection("payments").find();
-		if (!cursor) next(throwError(statusCodes.INTERNAL_ERROR));
-
-		let payments = await cursor.toArray();
-		payments = arrayToObject(payments, "paymentId");
-		res.status(statusCodes.OK).json({ payments });
+		res.json(res.paginatedResults);
 	} catch (error) {
 		next(error);
 	}
@@ -17,15 +12,34 @@ export const getPayments = async (req, res, next) => {
 
 export const getPaymentById = async (req, res, next) => {
 	try {
-		const payment = await db
-			.collection("payments")
-			.findOne({ paymentId: req.params.id });
+		const payment = await Payment.findOne({ paymentId: req.params.id });
 
 		if (!payment) {
-			next(throwError(statusCodes.INTERNAL_ERROR));
+			return next(throwError(statusCodes.INTERNAL_ERROR));
 		}
 
 		res.status(statusCodes.OK).json({ payment });
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const createPayment = async (req, res, next) => {
+	try {
+		const { title, description, customerId, userId, orgId } = req.body;
+
+		const newTicket = new Payment({
+			title,
+			description,
+			customer: ObjectId(customerId),
+			createdBy: ObjectId(userId),
+			organizationId: ObjectId(orgId),
+		});
+		const ticket = await newTicket.save();
+
+		if (!ticket) return next(throwError(statusCodes.INTERNAL_ERROR));
+
+		res.status(statusCodes.CREATED).json({ ticket });
 	} catch (error) {
 		next(error);
 	}

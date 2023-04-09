@@ -3,7 +3,7 @@ let db = mongoose.connection;
 import mongoClient from "mongodb";
 const { ObjectId } = mongoClient;
 
-const initDatabase = (database = "entities") => {
+const initDatabase = (database = "ticketscout") => {
 	db.close();
 	mongoose.set("strictQuery", true);
 	mongoose
@@ -23,16 +23,5 @@ const initDatabase = (database = "entities") => {
 		});
 };
 
-const connectToDatabase = async (database = "entities") => {
-	try {
-		const options = { useCache: true, noListender: true };
-		db = mongoose.connection.useDb(database, options);
-		console.log(`Connected to MongoDb: ${database}`);
-        return db;
-	} catch (error) {
-		console.log("Mongodb is not connected: ", error);
-        return error;
-	}
-};
 
-export { db, ObjectId, connectToDatabase, initDatabase };
+export { db, ObjectId, initDatabase };

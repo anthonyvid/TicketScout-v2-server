@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { accountStatus, permission } from "../constants/user.constants.js";
+import { ObjectId } from "../utils/db.js";
 
 const UserSchema = new mongoose.Schema(
 	{
@@ -16,18 +17,8 @@ const UserSchema = new mongoose.Schema(
 			default: permission.BASIC,
 		},
 		address: {
-			street: {
-				type: String,
-			},
-			city: {
-				type: String,
-			},
-			province: {
-				type: String,
-			},
-			country: {
-				type: String,
-			},
+			type: String,
+			default: "",
 		},
 		phoneNumber: {
 			type: String,
@@ -42,7 +33,8 @@ const UserSchema = new mongoose.Schema(
 			required: true,
 		},
 		organizationId: {
-			type: String,
+			type: ObjectId,
+			ref: "Organization",
 			required: true,
 		},
 		storeUrl: {

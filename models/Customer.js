@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ObjectId } from "../utils/db.js";
 
 const CustomerSchema = new mongoose.Schema(
 	{
@@ -18,24 +19,14 @@ const CustomerSchema = new mongoose.Schema(
 			type: Array,
 			default: [],
 		},
-		// address: {
-		// 	street: {
-		// 		type: String,
-		// 		required: true,
-		// 	},
-		// 	city: {
-		// 		type: String,
-		// 		required: true,
-		// 	},
-		// 	province: {
-		// 		type: String,
-		// 		required: true,
-		// 	},
-		// 	country: {
-		// 		type: String,
-		// 		required: true,
-		// 	},
-		// },
+		organizationId: {
+			type: ObjectId,
+			required: true,
+		},
+		address: {
+			type: String,
+			default: "",
+		},
 		phone: {
 			type: String,
 			required: true,

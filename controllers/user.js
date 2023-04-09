@@ -1,5 +1,5 @@
 import { statusCodes } from "../constants/statusCodes.constants.js";
-import { getUser, isUniqueEmail, throwError } from "../utils/helper.js";
+import { getUser,  throwError } from "../utils/helper.js";
 import bcrypt from "bcrypt";
 import { db, ObjectId } from "../utils/db.js";
 
@@ -16,7 +16,7 @@ export const resetPassword = async (req, res, next) => {
 				{ _id: ObjectId(id) },
 				{ $unset: { passwordReset: "" } }
 			);
-			next(
+			return next(
 				throwError(
 					statusCodes.BAD_REQUEST,
 					"Your password reset link has expired."
@@ -26,7 +26,7 @@ export const resetPassword = async (req, res, next) => {
 			const isMatch = await bcrypt.compare(token, hashedTokenFromDB);
 
 			if (!isMatch) {
-				next(
+				return next(
 					throwError(
 						statusCodes.BAD_REQUEST,
 						"Your password reset link is invalid. Please reset your password again."
@@ -35,8 +35,8 @@ export const resetPassword = async (req, res, next) => {
 			} else {
 				const salt = await bcrypt.genSalt();
 				const passwordHash = await bcrypt.hash(password, salt);
-				//update user password with new hashed password
-
+				
+                //update user password with new hashed password
 				const user = await users.updateOne(
 					{ _id: ObjectId(id) },
 					{
@@ -54,7 +54,7 @@ export const resetPassword = async (req, res, next) => {
 						email: userFromDb.email,
 					});
 				} else {
-					next(
+					return next(
 						throwError(
 							statusCodes.BAD_REQUEST,
 							"Error resetting your password. Please try again."
@@ -63,6 +63,14 @@ export const resetPassword = async (req, res, next) => {
 				}
 			}
 		}
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getUsers = async (req, res, next) => {
+	try {
+		res.json(res.paginatedResults);
 	} catch (error) {
 		next(error);
 	}

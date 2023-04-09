@@ -11,8 +11,9 @@ import {
 	sendPasswordResetEmail,
 	throwError,
 } from "../utils/helper.js";
-import { connectToDatabase, db, ObjectId } from "../utils/db.js";
+import { db, ObjectId } from "../utils/db.js";
 import { accountStatus } from "../constants/user.constants.js";
+import Organization from "../models/Organization.js";
 
 /* REGISTER USER */
 export const register = async (req, res, next) => {
@@ -37,28 +38,22 @@ export const register = async (req, res, next) => {
 			email,
 			phoneNumber,
 			password: passwordHash,
-			organizationId,
+			organizationId: ObjectId(organizationId),
 			storeUrl,
 		});
 		const user = await newUser.save();
 
-		if (!user) next(throwError(statusCodes.INTERNAL_ERROR));
+		if (!user) return next(throwError(statusCodes.INTERNAL_ERROR));
 
 		// Delete sign up code
 		// await db
 		// 	.collection("inviteCodes")
 		// 	.deleteOne({ code: signUpCode, organizationId }); //todo: remove comment after
 
-		// Connect to users organization Database
-		await connectToDatabase(user.organizationId);
-
 		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 		delete user.password;
 
-		// Add user to organizations users collection
-		await db.collection("users").insertOne(newUser);
-
-		res.status(201).json({ user, token });
+		res.status(statusCodes.CREATED).json({ user, token });
 	} catch (error) {
 		next(error);
 	}
@@ -68,9 +63,9 @@ export const register = async (req, res, next) => {
 export const login = async (req, res, next) => {
 	try {
 		const { email, password } = req.body;
-		const user = await User.findOne({ email: email });
+		const user = await getUser(email);
 		if (!user) {
-			next(
+			return next(
 				throwError(
 					statusCodes.BAD_REQUEST,
 					"Account does not exist.",
@@ -82,7 +77,7 @@ export const login = async (req, res, next) => {
 		const isMatch = await bcrypt.compare(password, user.password);
 
 		if (!isMatch) {
-			next(
+			return next(
 				throwError(
 					statusCodes.BAD_REQUEST,
 					"Invalid email or password.",
@@ -92,7 +87,7 @@ export const login = async (req, res, next) => {
 		}
 
 		if (user.accountStatus !== accountStatus.ACTIVE) {
-			next(
+			return next(
 				throwError(
 					statusCodes.BAD_REQUEST,
 					"Your account is currently inactive."
@@ -102,9 +97,6 @@ export const login = async (req, res, next) => {
 
 		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 		delete user.password;
-
-		// Connect to users organization Database
-		await connectToDatabase(user.organizationId);
 
 		res.status(statusCodes.OK).json({ token, user });
 	} catch (error) {
@@ -131,7 +123,7 @@ export const verifySignUpCode = async (req, res, next) => {
 					"Sign up code has expired. Please contact your employer to receive a new one."
 				)
 			);
-		console.log(inviteCode);
+
 		if (inviteCode)
 			res.status(statusCodes.OK).json({
 				code,
@@ -146,7 +138,7 @@ export const verifySignUpCode = async (req, res, next) => {
 /* LOGGING OUT */
 export const logout = async (req, res, next) => {
 	try {
-		await connectToDatabase();
+		//
 	} catch (error) {
 		next(error);
 	}
@@ -156,9 +148,8 @@ export const logout = async (req, res, next) => {
 export const forgotPassword = async (req, res, next) => {
 	try {
 		const { email } = req.body;
-		const users = db.collection("users");
-		const user = await users.findOne({ email });
-		console.log(user);
+		const user = await getUser(email);
+
 		if (user) {
 			const clientBaseUrl = new URL(req.header("Referer")).origin;
 			// send email
@@ -215,8 +206,7 @@ export const checkoutSuccess = async (req, res, next) => {
 			req.query.session_id
 		);
 		const email = session.customer_email;
-		const users = db.collection("users");
-		const user = await users.findOne({ email });
+		const user = await getUser(email);
 
 		if (!user) {
 			next(throwError(statusCodes.INTERNAL_ERROR));
@@ -251,20 +241,16 @@ export const uniqueStoreName = async (req, res, next) => {
 
 export const isAuthenticated = async (req, res, next) => {
 	try {
-		const { _id, organizationId, accountStatus, email, permission } =
-			req.body.user;
+		const { _id, organizationId, accountStatus, email } = req.body.user;
 
-		if (db.name !== organizationId && permission !== permission.SUPER_USER)
-			await connectToDatabase(organizationId);
-
-		const orgData = await db
-			.collection("organization")
-			.findOne({ organizationId: ObjectId(organizationId) });
+		const organization = await Organization.findOne({
+			_id: ObjectId(organizationId),
+		});
 		const user = await getUser(_id);
 
 		const authorized =
 			!user ||
-			user.organizationId !== orgData.organizationId.toString() ||
+			user.organizationId.toString() !== organization._id.toString() ||
 			user.accountStatus !== accountStatus.ACTIVE ||
 			user.email !== email;
 
@@ -279,6 +265,7 @@ export const isAuthenticated = async (req, res, next) => {
 			res.status(statusCodes.OK).send();
 		}
 	} catch (error) {
+		console.log(error);
 		next(error);
 	}
 };
