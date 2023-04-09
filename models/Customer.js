@@ -11,14 +11,6 @@ const CustomerSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		tickets: {
-			type: Array,
-			default: [],
-		},
-		invoices: {
-			type: Array,
-			default: [],
-		},
 		organizationId: {
 			type: ObjectId,
 			required: true,
