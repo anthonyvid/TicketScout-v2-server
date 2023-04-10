@@ -16,6 +16,7 @@ import customerRoutes from "./routes/customer.js";
 import userRoutes from "./routes/user.js";
 import ErrorHandler from "./middleware/ErrorHandler.js";
 import { initDatabase } from "./utils/db.js";
+import { handleSortFilter } from "./middleware/SortFilterHandler.js";
 
 Sentry.init({
 	dsn: process.env.SENTRY_DSN,
@@ -38,6 +39,8 @@ app.use("/assets", express.static(path.join(__dirname, "public/assets"))); // fo
 
 // Connect to mongoDB
 initDatabase();
+
+app.use(handleSortFilter);
 
 /* ROUTES */
 app.use("/api/auth", authRoutes);
