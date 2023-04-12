@@ -1,4 +1,4 @@
-import { statusCodes } from "../constants/statusCodes.constants.js";
+import { statusCodes } from "../constants/server.constants.js";
 import { throwError } from "../utils/helper.js";
 import Payment from "../models/Payment.js";
 

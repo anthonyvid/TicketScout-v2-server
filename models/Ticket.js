@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ticketStatus } from "../constants/ticket.constants.js";
+import { ticketStatus } from "../constants/server.constants.js";
 import Sequence from "mongoose-sequence";
 import { ObjectId } from "../utils/db.js";
 

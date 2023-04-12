@@ -1,4 +1,4 @@
-import { statusCodes } from "../constants/statusCodes.constants.js";
+import { statusCodes } from "../constants/server.constants.js";
 import Ticket from "../models/Ticket.js";
 import { ObjectId } from "../utils/db.js";
 import { throwError } from "../utils/helper.js";

@@ -1,5 +1,5 @@
-import { statusCodes } from "../constants/statusCodes.constants.js";
-import { permission } from "../constants/user.constants.js";
+import { statusCodes, permission } from "../constants/server.constants.js";
+
 import Organization from "../models/Organization.js";
 import { throwError } from "../utils/helper.js";
 import bcrypt from "bcrypt";

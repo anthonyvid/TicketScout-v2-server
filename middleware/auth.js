@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { statusCodes } from "../constants/statusCodes.constants.js";
+import { statusCodes } from "../constants/server.constants.js";
 import { throwError } from "../utils/helper.js";
 
 export const verifyToken = async (req, res, next) => {

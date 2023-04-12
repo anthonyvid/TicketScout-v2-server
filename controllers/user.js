@@ -1,5 +1,5 @@
-import { statusCodes } from "../constants/statusCodes.constants.js";
-import { getUser,  throwError } from "../utils/helper.js";
+import { statusCodes } from "../constants/server.constants.js";
+import { getUser, throwError } from "../utils/helper.js";
 import bcrypt from "bcrypt";
 import { db, ObjectId } from "../utils/db.js";
 
@@ -35,8 +35,8 @@ export const resetPassword = async (req, res, next) => {
 			} else {
 				const salt = await bcrypt.genSalt();
 				const passwordHash = await bcrypt.hash(password, salt);
-				
-                //update user password with new hashed password
+
+				//update user password with new hashed password
 				const user = await users.updateOne(
 					{ _id: ObjectId(id) },
 					{

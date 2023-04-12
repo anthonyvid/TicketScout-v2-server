@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { accountStatus, permission } from "../constants/user.constants.js";
+import { accountStatus, permission } from "../constants/server.constants.js";
 import { ObjectId } from "../utils/db.js";
 
 const UserSchema = new mongoose.Schema(

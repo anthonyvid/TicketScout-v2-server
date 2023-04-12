@@ -1,9 +1,12 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { statusCodes } from "../constants/statusCodes.constants.js";
 import Stripe from "stripe";
-import { planTypes } from "../constants/organization.constants.js";
+import {
+	planTypes,
+	statusCodes,
+	accountStatus,
+} from "../constants/server.constants.js";
 import {
 	getUser,
 	isUniqueEmail,
@@ -12,7 +15,7 @@ import {
 	throwError,
 } from "../utils/helper.js";
 import { db, ObjectId } from "../utils/db.js";
-import { accountStatus } from "../constants/user.constants.js";
+
 import Organization from "../models/Organization.js";
 
 /* REGISTER USER */

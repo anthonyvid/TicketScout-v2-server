@@ -1,4 +1,4 @@
-import { statusCodes } from "../constants/statusCodes.constants.js";
+import { statusCodes } from "../constants/server.constants.js";
 
 const ErrorHandler = (err, req, res, next) => {
 	const errStatus = err.statusCode || statusCodes.INTERNAL_ERROR;

@@ -1,6 +1,7 @@
 import validator from "validator";
-import { planTypes } from "../constants/organization.constants.js";
-import { statusCodes } from "../constants/statusCodes.constants.js";
+
+import { planTypes, statusCodes } from "../constants/server.constants.js";
+
 import {
 	isUniqueEmail,
 	isUniqueStoreName,
