@@ -250,17 +250,20 @@ export const isAuthenticated = async (req, res, next) => {
 
 		const authorized =
 			!user ||
+			!organization ||
 			user.organizationId.toString() !== organization._id.toString() ||
 			user.accountStatus !== accountStatus.ACTIVE ||
 			user.email !== email;
 
 		if (!authorized) {
-			next(
+			return next(
 				throwError(
 					statusCodes.FORBIDDEN,
 					"Access denied due to invalid credentials. Please log in."
 				)
 			);
+		} else if (organization.storeName !== req.body.storeNameFromUrl) {
+			return next(throwError(statusCodes.NOT_FOUND));
 		} else {
 			res.status(statusCodes.OK).send();
 		}
