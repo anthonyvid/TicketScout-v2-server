@@ -2,13 +2,16 @@ import { isJsonString } from "../utils/helper.js";
 
 export const handleSortFilter = (req, res, next) => {
 	let { sort, filter } = req.query;
-	console.log(sort);
-	// set default sort parameter if not provided
-	const sortParam = sort || "createdAt:desc";
-	const sortFields = sortParam.split(":");
 
-	// set default sort order parameter if not provided
-	const sortOrder = sortFields[1] === "desc" ? -1 : 1;
+	// Build the sort object
+	const sortObj = sort ? JSON.parse(sort) : { createdAt: "desc" };
+	Object.keys(sortObj).forEach((key) => {
+		if (sortObj[key] === "asc") {
+			sortObj[key] = 1;
+		} else if (sortObj[key] === "desc") {
+			sortObj[key] = -1;
+		}
+	});
 
 	const filterParam = filter || {};
 	let query = {};
@@ -18,7 +21,10 @@ export const handleSortFilter = (req, res, next) => {
 	if (filterObj) {
 		Object.entries(filterObj).forEach(([key, value]) => {
 			// Handle special cases like date filtering
-			if (key === "createdAt" && typeof value === "object") {
+			if (
+				(key === "createdAt" || key === "updatedAt") &&
+				typeof value === "object"
+			) {
 				const { gt, gte, lt, lte } = value;
 				if (gt || gte || lt || lte) {
 					query.createdAt = {};
@@ -33,10 +39,8 @@ export const handleSortFilter = (req, res, next) => {
 			}
 		});
 	}
-
-	req.sort = sortFields[0];
+	console.log(query);
+	req.sort = sortObj;
 	req.filter = query;
-	req.order = sortOrder;
-
 	next();
 };

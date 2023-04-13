@@ -3,7 +3,7 @@ import { db, ObjectId } from "../utils/db.js";
 export const paginateResults = (collection, orgSpecific = true) => {
 	return async (req, res, next) => {
 		const organizationId = req.headers.organizationid;
-		const { sort, filter, order } = req;
+		const { sort, filter } = req;
 		const page = parseInt(req.query.page);
 		const limit = parseInt(req.query.limit);
 		const startIndex = (page - 1) * limit;
@@ -17,7 +17,7 @@ export const paginateResults = (collection, orgSpecific = true) => {
 			const cursor = db
 				.collection(collection)
 				.find(filter)
-				.sort({ [sort]: order })
+				.sort(sort)
 				.skip(startIndex)
 				.limit(limit);
 			const [count, paginatedResults] = await Promise.all([
