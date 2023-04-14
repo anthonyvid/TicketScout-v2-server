@@ -39,8 +39,8 @@ export const handleSortFilter = (req, res, next) => {
 			}
 		});
 	}
-	console.log(query);
-	req.sort = sortObj;
+
+    req.sort = sortObj;
 	req.filter = query;
 	next();
 };

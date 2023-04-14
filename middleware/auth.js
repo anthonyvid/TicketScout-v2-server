@@ -11,7 +11,7 @@ export const verifyToken = async (req, res, next) => {
 			if (authHeader.startsWith("Bearer "))
 				token = authHeader.substring(7, authHeader.length);
 		}
-
+		console.log(token);
 		if (!token)
 			next(
 				throwError(

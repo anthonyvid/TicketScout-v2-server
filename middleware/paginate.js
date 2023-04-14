@@ -28,6 +28,8 @@ export const paginateResults = (collection, orgSpecific = true) => {
 			results.results = paginatedResults;
 			res.paginatedResults = results;
 
+			results.total = count;
+            
 			if (endIndex < count) {
 				results.next = {
 					page: page + 1,
