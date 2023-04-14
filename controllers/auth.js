@@ -271,7 +271,6 @@ export const isAuthenticated = async (req, res, next) => {
 			res.status(statusCodes.OK).send();
 		}
 	} catch (error) {
-		console.log(error);
 		next(error);
 	}
 };
