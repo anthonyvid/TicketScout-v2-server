@@ -1,5 +1,5 @@
 import { statusCodes } from "../constants/server.constants.js";
-import { throwError } from "../utils/helper.js";
+import { getWeeklyDataCount, throwError } from "../utils/helper.js";
 import Customer from "../models/Customer.js";
 import { ObjectId } from "../utils/db.js";
 
@@ -44,6 +44,16 @@ export const createCustomer = async (req, res, next) => {
 		if (!customer) return next(throwError(statusCodes.INTERNAL_ERROR));
 
 		res.status(statusCodes.CREATED).json({ customer });
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getWeeklyCustomerCount = async (req, res, next) => {
+	try {
+		const data = res.paginatedResults;
+		data.results = getWeeklyDataCount(data.results);
+		res.status(statusCodes.OK).json(data);
 	} catch (error) {
 		next(error);
 	}

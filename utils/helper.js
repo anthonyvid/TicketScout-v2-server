@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import nodemailer from "nodemailer";
 import validator from "validator";
 import User from "../models/User.js";
+import moment from "moment";
 
 export const isString = (str) => {
 	return Object.prototype.toString.call(str) === "[object String]";
@@ -175,4 +176,24 @@ export const isJsonString = (str) => {
 		return false;
 	}
 	return true;
+};
+
+export const getWeeklyDataCount = (data) => {
+	return [...Array(7)]
+		.map((_, i) => {
+			const date = moment().subtract(i, "days");
+			const dateString = date.format("L");
+
+			const count = data.reduce((total, d) => {
+				const dataDate = moment(d.createdAt).format("L");
+				if (dataDate === dateString) {
+					return total + 1;
+				} else {
+					return total;
+				}
+			}, 0);
+
+			return count;
+		})
+		.reverse();
 };

@@ -1,7 +1,7 @@
 import { statusCodes } from "../constants/server.constants.js";
 import Ticket from "../models/Ticket.js";
 import { ObjectId } from "../utils/db.js";
-import { throwError } from "../utils/helper.js";
+import { getWeeklyDataCount, throwError } from "../utils/helper.js";
 
 export const getTickets = async (req, res, next) => {
 	try {
@@ -42,6 +42,16 @@ export const getTicketById = async (req, res, next) => {
 		}
 
 		res.status(statusCodes.OK).json({ ticket });
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getWeeklyTicketCount = async (req, res, next) => {
+	try {
+		const data = res.paginatedResults;
+		data.results = getWeeklyDataCount(data.results);
+		res.status(statusCodes.OK).json(data);
 	} catch (error) {
 		next(error);
 	}
