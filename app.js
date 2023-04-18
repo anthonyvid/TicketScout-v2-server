@@ -1,7 +1,6 @@
 import express from "express";
 import * as Sentry from "@sentry/node";
 import bodyParser from "body-parser";
-import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
@@ -17,6 +16,8 @@ import userRoutes from "./routes/user.js";
 import ErrorHandler from "./middleware/ErrorHandler.js";
 import { initDatabase } from "./utils/db.js";
 import { handleSortFilter } from "./middleware/SortFilterHandler.js";
+import http from "http";
+import { initSocketIo } from "./socket.js";
 
 Sentry.init({
 	dsn: process.env.SENTRY_DSN,
@@ -27,6 +28,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config();
 const app = express();
+const server = http.createServer(app);
 app.use(Sentry.Handlers.requestHandler());
 app.use(express.json());
 app.use(helmet());
@@ -39,6 +41,9 @@ app.use("/assets", express.static(path.join(__dirname, "public/assets"))); // fo
 
 // Connect to mongoDB
 initDatabase();
+
+// Initialize WebSockets
+initSocketIo(server);
 
 app.use(handleSortFilter);
 
@@ -54,4 +59,7 @@ app.use(Sentry.Handlers.errorHandler());
 app.use(ErrorHandler);
 
 const PORT = process.env.PORT || 6001;
+const WS_PORT = process.env.WS_PORT || 7001;
+
+server.listen(WS_PORT);
 app.listen(PORT);

@@ -1,5 +1,6 @@
 import { statusCodes } from "../constants/server.constants.js";
 import Ticket from "../models/Ticket.js";
+import { io } from "../socket.js";
 import { ObjectId } from "../utils/db.js";
 import { getWeeklyDataCount, throwError } from "../utils/helper.js";
 
@@ -26,6 +27,8 @@ export const createTicket = async (req, res, next) => {
 		const ticket = await newTicket.save();
 
 		if (!ticket) return next(throwError(statusCodes.INTERNAL_ERROR));
+
+		io.emit("new-ticket", { ticket });
 
 		res.status(statusCodes.CREATED).json({ ticket });
 	} catch (error) {
