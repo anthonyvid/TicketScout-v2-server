@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ticketStatus } from "../constants/server.constants.js";
+import { defaultTicketStatuses } from "../constants/server.constants.js";
 import Sequence from "mongoose-sequence";
 import { ObjectId } from "../utils/db.js";
 
@@ -18,8 +18,8 @@ const TicketSchema = new mongoose.Schema(
 			default: "",
 		},
 		status: {
-			type: Number,
-			default: ticketStatus.NEW,
+			type: String,
+			default: defaultTicketStatuses[0],
 		},
 		customer: {
 			type: ObjectId,

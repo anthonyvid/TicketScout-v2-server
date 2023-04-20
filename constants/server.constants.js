@@ -27,12 +27,9 @@ export const statusCodes = {
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-export const ticketStatus = Object.freeze({
-	NEW: 0,
-	REPLY: 1,
-	PRIORITY: 2,
-	//todo: add more
-});
+
+export const defaultTicketStatuses = ["new,#07bc0c", "reply,#ffb13b"];
+
 export const roles = Object.freeze({
 	BASIC: 0,
 	MANAGER: 1,

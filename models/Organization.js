@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { defaultTicketStatuses } from "../constants/server.constants.js";
 
 const OrganizationSchema = new mongoose.Schema(
 	{
@@ -27,6 +28,12 @@ const OrganizationSchema = new mongoose.Schema(
 		subscription: {
 			type: Number,
 			required: true,
+		},
+		organization: {
+			type: Object,
+			default: {
+				ticketStatuses: defaultTicketStatuses,
+			},
 		},
 	},
 	{ timestamps: true }
