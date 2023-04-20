@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { accountStatus, permission } from "../constants/server.constants.js";
+import { accountStatus, roles } from "../constants/server.constants.js";
 import { ObjectId } from "../utils/db.js";
 
 const UserSchema = new mongoose.Schema(
@@ -12,9 +12,9 @@ const UserSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		permission: {
+		roles: {
 			type: Number,
-			default: permission.BASIC,
+			default: roles.BASIC,
 		},
 		address: {
 			type: String,

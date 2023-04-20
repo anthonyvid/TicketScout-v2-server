@@ -33,7 +33,7 @@ export const ticketStatus = Object.freeze({
 	PRIORITY: 2,
 	//todo: add more
 });
-export const permission = Object.freeze({
+export const roles = Object.freeze({
 	BASIC: 0,
 	MANAGER: 1,
 	ADMIN: 2,

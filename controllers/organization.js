@@ -1,4 +1,4 @@
-import { statusCodes, permission } from "../constants/server.constants.js";
+import { statusCodes, roles } from "../constants/server.constants.js";
 
 import Organization from "../models/Organization.js";
 import { throwError } from "../utils/helper.js";
@@ -44,7 +44,7 @@ export const createOrganization = async (req, res, next) => {
 		const newUser = new User({
 			firstname,
 			lastname,
-			permission: permission.ADMIN,
+			roles: roles.ADMIN,
 			email,
 			phoneNumber,
 			password: passwordHash,
