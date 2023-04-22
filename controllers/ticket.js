@@ -1,7 +1,7 @@
 import { statusCodes } from "../constants/server.constants.js";
 import Ticket from "../models/Ticket.js";
 import { io } from "../socket.js";
-import { ObjectId } from "../utils/db.js";
+import { ObjectId, db } from "../utils/db.js";
 import { getWeeklyDataCount, throwError } from "../utils/helper.js";
 
 export const getTickets = async (req, res, next) => {
@@ -62,16 +62,27 @@ export const getWeeklyTicketCount = async (req, res, next) => {
 
 export const deleteTicket = async (req, res, next) => {
 	try {
-		const ids = req.params.id; // Can be just one or multiple ids
+		const id = req.params.id;
+		await db.collection("tickets").deleteOne({ ticketId: id });
 
-        
-        if(ids.length === 0) {
-            
-        } else {
+		// Emit websocket for the ticket we deleted
+		io.emit("delete-ticket", { ids: [id] });
 
-        }
+		res.status(statusCodes.NO_CONTENT).send();
+	} catch (error) {
+		next(error);
+	}
+};
 
-		res.status(statusCodes.OK).json({});
+export const deleteTickets = async (req, res, next) => {
+	try {
+		const ids = JSON.parse(req.query.ids);
+		await db.collection("tickets").deleteMany({ ticketId: { $in: ids } });
+
+		// Emit websocket for the ticket we deleted
+		io.emit("delete-ticket", { ids: ids });
+
+		res.status(statusCodes.NO_CONTENT).send();
 	} catch (error) {
 		next(error);
 	}
