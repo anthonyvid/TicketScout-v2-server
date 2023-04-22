@@ -1,6 +1,7 @@
 import express from "express";
 import {
 	createTicket,
+	deleteTicket,
 	getTicketById,
 	getTickets,
     getWeeklyTicketCount,
@@ -14,5 +15,6 @@ router.get("/", verifyToken, paginateResults("tickets"), getTickets);
 router.get("/week-count", verifyToken, paginateResults("tickets"), getWeeklyTicketCount);
 router.post("/", verifyToken, createTicket);
 router.get("/:id", verifyToken, getTicketById);
+router.delete("/:id", verifyToken, deleteTicket);
 
 export default router;

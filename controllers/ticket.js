@@ -59,3 +59,20 @@ export const getWeeklyTicketCount = async (req, res, next) => {
 		next(error);
 	}
 };
+
+export const deleteTicket = async (req, res, next) => {
+	try {
+		const ids = req.params.id; // Can be just one or multiple ids
+
+        
+        if(ids.length === 0) {
+            
+        } else {
+
+        }
+
+		res.status(statusCodes.OK).json({});
+	} catch (error) {
+		next(error);
+	}
+};
