@@ -38,7 +38,9 @@ export const createTicket = async (req, res, next) => {
 
 export const getTicketById = async (req, res, next) => {
 	try {
-		const ticket = await Ticket.findOne({ ticketId: req.params.id });
+		const ticket = await Ticket.findOne({
+			ticketId: req.params.id,
+		}).populate("customer");
 
 		if (!ticket) {
 			return next(throwError(statusCodes.INTERNAL_ERROR));
@@ -62,8 +64,8 @@ export const getWeeklyTicketCount = async (req, res, next) => {
 
 export const deleteTicket = async (req, res, next) => {
 	try {
-		const id = req.params.id;
-		await db.collection("tickets").deleteOne({ ticketId: parseInt(id) });
+		const id = parseInt(req.params.id);
+		await db.collection("tickets").deleteOne({ ticketId: id });
 
 		// Emit websocket for the ticket we deleted
 		io.emit("delete-ticket", { ids: [id] });

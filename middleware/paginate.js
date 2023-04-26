@@ -1,3 +1,8 @@
+import Organization from "../models/Organization.js";
+import Ticket from "../models/Ticket.js";
+import User from "../models/User.js";
+import Customer from "../models/Customer.js";
+import Payment from "../models/Payment.js";
 import { db, ObjectId } from "../utils/db.js";
 
 export const paginateResults = (collection, orgSpecific = true) => {
@@ -13,16 +18,18 @@ export const paginateResults = (collection, orgSpecific = true) => {
 		if (orgSpecific) filter.organizationId = new ObjectId(organizationId);
 
 		try {
-			const countPromise = db.collection(collection).countDocuments();
-			const cursor = db
-				.collection(collection)
-				.find(filter)
-				.sort(sort)
-				.skip(startIndex)
-				.limit(limit);
+			const countPromise = getModel(collection).countDocuments();
+			let cursor = Ticket.find(filter).sort(sort);
+
+			if (collection === "tickets") {
+				cursor = cursor.populate("customer");
+			}
+
+			cursor = cursor.skip(startIndex).limit(limit);
+
 			const [count, paginatedResults] = await Promise.all([
 				countPromise,
-				cursor.toArray(),
+				cursor,
 			]);
 
 			results.results = paginatedResults;
@@ -48,4 +55,19 @@ export const paginateResults = (collection, orgSpecific = true) => {
 			next(error);
 		}
 	};
+};
+
+const getModel = (collection) => {
+	switch (collection) {
+		case "tickets":
+			return Ticket;
+		case "customers":
+			return Customer;
+		case "payments":
+			return Payment;
+		case "users":
+			return User;
+		case "organization":
+			return Organization;
+	}
 };
