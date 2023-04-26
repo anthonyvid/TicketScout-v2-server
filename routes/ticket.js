@@ -6,6 +6,7 @@ import {
 	getTicketById,
 	getTickets,
 	getWeeklyTicketCount,
+	updateTicket,
 } from "../controllers/ticket.js";
 import { verifyToken } from "../middleware/auth.js";
 import { paginateResults } from "../middleware/paginate.js";
@@ -23,5 +24,6 @@ router.post("/", verifyToken, createTicket);
 router.get("/:id", verifyToken, getTicketById);
 router.delete("/:id", verifyToken, deleteTicket);
 router.delete("/", verifyToken, deleteTickets);
+router.post("/:id", verifyToken, updateTicket);
 
 export default router;

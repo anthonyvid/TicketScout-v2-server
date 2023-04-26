@@ -63,7 +63,7 @@ export const getWeeklyTicketCount = async (req, res, next) => {
 export const deleteTicket = async (req, res, next) => {
 	try {
 		const id = req.params.id;
-		await db.collection("tickets").deleteOne({ ticketId: id });
+		await db.collection("tickets").deleteOne({ ticketId: parseInt(id) });
 
 		// Emit websocket for the ticket we deleted
 		io.emit("delete-ticket", { ids: [id] });
@@ -83,6 +83,24 @@ export const deleteTickets = async (req, res, next) => {
 		io.emit("delete-ticket", { ids: ids });
 
 		res.status(statusCodes.NO_CONTENT).send();
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const updateTicket = async (req, res, next) => {
+	try {
+		const id = req.params.id;
+		const data = req.body;
+
+		await db
+			.collection("tickets")
+			.updateOne({ ticketId: parseInt(id) }, { $set: data });
+
+		// Emit websocket for the ticket we updated
+		io.emit("update-ticket", { id, data });
+
+		res.status(statusCodes.OK).send();
 	} catch (error) {
 		next(error);
 	}
