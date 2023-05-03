@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 let io;
 
 const handleTestEvent = (socket, data) => {
-	console.log(data);
+	socket.emit("async_ticket_results", data);
 };
 
 const handleDisconnectEvent = (socket) => {
@@ -21,7 +21,9 @@ const initSocketIo = (server) => {
 		io = ioInstance;
 
 		io.on("connection", (socket) => {
-			socket.on("test", (data) => handleTestEvent(socket, data));
+			socket.on("async_ticket_search", (data) =>
+				handleTestEvent(socket, data)
+			);
 			socket.on("disconnect", () => handleDisconnectEvent(socket));
 		});
 	} catch (error) {
