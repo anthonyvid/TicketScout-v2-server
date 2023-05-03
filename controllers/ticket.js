@@ -14,12 +14,13 @@ export const getTickets = async (req, res, next) => {
 
 export const createTicket = async (req, res, next) => {
 	try {
-		const { title, description, customerId, userId } = req.body;
+		const { title, description, status, customerId, userId } = req.body;
 		const organizationId = req.headers.organizationid;
 
 		const newTicket = new Ticket({
 			title,
 			description,
+			status,
 			customer: ObjectId(customerId),
 			createdBy: ObjectId(userId),
 			organizationId: ObjectId(organizationId),
