@@ -15,14 +15,24 @@ export const paginateResults = (collection, orgSpecific = true) => {
 		const endIndex = page * limit;
 		const results = {};
 
+		console.log(collection, sort, filter);
+
 		if (orgSpecific) filter.organizationId = new ObjectId(organizationId);
 
 		try {
-			const countPromise = getModel(collection).countDocuments();
-			let cursor = Ticket.find(filter).sort(sort);
+            const model = getModel(collection);
+			const countPromise = model.countDocuments();
+			let cursor = model.find(filter).sort(sort);
 
 			if (collection === "tickets") {
 				cursor = cursor.populate("customer");
+				db.collection("tickets").aggregate([
+					{
+						$addFields: {
+							ticketIdString: { $toString: "$ticketId" },
+						},
+					},
+				]);
 			}
 
 			cursor = cursor.skip(startIndex).limit(limit);

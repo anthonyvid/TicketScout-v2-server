@@ -35,6 +35,7 @@ export const createCustomer = async (req, res, next) => {
 		const newCustomer = new Customer({
 			firstname,
 			lastname,
+			fullname: firstname + " " + lastname,
 			phone,
 			email,
 			organizationId: ObjectId(organizationId),

@@ -11,6 +11,10 @@ const CustomerSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
+		fullname: {
+			type: String,
+			required: true,
+		},
 		organizationId: {
 			type: ObjectId,
 			required: true,
