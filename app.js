@@ -12,6 +12,7 @@ import organizationRoutes from "./routes/organization.js";
 import ticketRoutes from "./routes/ticket.js";
 import paymentRoutes from "./routes/payment.js";
 import customerRoutes from "./routes/customer.js";
+import searchRoutes from "./routes/search.js";
 import userRoutes from "./routes/user.js";
 import ErrorHandler from "./middleware/ErrorHandler.js";
 import { initDatabase } from "./utils/db.js";
@@ -54,6 +55,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/search", searchRoutes);
 
 app.use(Sentry.Handlers.errorHandler());
 app.use(ErrorHandler);

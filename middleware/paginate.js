@@ -15,7 +15,6 @@ export const paginateResults = (collection, orgSpecific = true) => {
 		const endIndex = page * limit;
 		const results = {};
 
-		console.log(collection, sort, filter);
 
 		if (orgSpecific) filter.organizationId = new ObjectId(organizationId);
 
