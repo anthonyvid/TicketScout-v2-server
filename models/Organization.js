@@ -29,7 +29,7 @@ const OrganizationSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
-		organization: {
+		settings: {
 			type: Object,
 			default: {
 				ticketStatuses: defaultTicketStatuses,
