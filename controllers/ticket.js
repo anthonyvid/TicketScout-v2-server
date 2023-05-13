@@ -14,7 +14,7 @@ export const getTickets = async (req, res, next) => {
 
 export const createTicket = async (req, res, next) => {
 	try {
-		const { title, description, status, customerId, userId } = req.body;
+		const { title, description, status, customerId, createdBy } = req.body;
 		const organizationId = req.headers.organizationid;
 
 		const newTicket = new Ticket({
@@ -22,12 +22,15 @@ export const createTicket = async (req, res, next) => {
 			description,
 			status,
 			customer: ObjectId(customerId),
-			createdBy: ObjectId(userId),
+			createdBy: ObjectId(createdBy),
 			organizationId: ObjectId(organizationId),
 		});
 		const ticket = await newTicket.save();
 
 		if (!ticket) return next(throwError(statusCodes.INTERNAL_ERROR));
+
+		// Populate the customer field
+		await ticket.populate("customer");
 
 		io.emit("new-ticket", { ticket });
 
